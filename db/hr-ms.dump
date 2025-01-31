@@ -1,0 +1,1222 @@
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 14.15
+-- Dumped by pg_dump version 14.15
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: uuid-ossp; Type: EXTENSION; Schema: -; Owner: -
+--
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
+
+
+--
+-- Name: EXTENSION "uuid-ossp"; Type: COMMENT; Schema: -; Owner: 
+--
+
+COMMENT ON EXTENSION "uuid-ossp" IS 'generate universally unique identifiers (UUIDs)';
+
+
+--
+-- Name: hr_employment_type_enum; Type: TYPE; Schema: public; Owner: hr-ms
+--
+
+CREATE TYPE public.hr_employment_type_enum AS ENUM (
+    'Full time',
+    'Part time',
+    'Consultant',
+    'Advisor',
+    'Other'
+);
+
+
+ALTER TYPE public.hr_employment_type_enum OWNER TO "hr-ms";
+
+--
+-- Name: hr_gender_enum; Type: TYPE; Schema: public; Owner: hr-ms
+--
+
+CREATE TYPE public.hr_gender_enum AS ENUM (
+    'Male',
+    'Female',
+    'Non-Binary',
+    'Agender',
+    'Prefer not to say'
+);
+
+
+ALTER TYPE public.hr_gender_enum OWNER TO "hr-ms";
+
+--
+-- Name: hr_sexual_orientation_enum; Type: TYPE; Schema: public; Owner: hr-ms
+--
+
+CREATE TYPE public.hr_sexual_orientation_enum AS ENUM (
+    'Heterosexual',
+    'Gay/Lesbian',
+    'Bisexual',
+    'Prefer not to say'
+);
+
+
+ALTER TYPE public.hr_sexual_orientation_enum OWNER TO "hr-ms";
+
+--
+-- Name: hr_plan_change_type_enum; Type: TYPE; Schema: public; Owner: hr-ms
+--
+
+CREATE TYPE public.hr_plan_change_type_enum AS ENUM (
+    'Base Salary',
+    'One-Time Bonus',
+    'Equity',
+    'Recommended Equity'
+);
+
+
+ALTER TYPE public.hr_plan_change_type_enum OWNER TO "hr-ms";
+
+SET default_tablespace = '';
+
+SET default_table_access_method = heap;
+
+--
+-- Name: hr; Type: TABLE; Schema: public; Owner: hr-ms
+--
+
+CREATE TABLE public.hr (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    updated_at timestamp with time zone DEFAULT now() NOT NULL,
+    created_at timestamp with time zone DEFAULT now() NOT NULL,
+    deleted_at timestamp with time zone,
+    employee_number character varying,
+    requisition character varying NOT NULL,
+    business_id uuid NOT NULL,
+    first_name character varying NOT NULL,
+    middle_name character varying,
+    last_name character varying,
+    company_email character varying,
+    private_email character varying,
+    gender public.hr_gender_enum NOT NULL,
+    sexual_orientation public.hr_sexual_orientation_enum NOT NULL,
+    department_head character varying NOT NULL,
+    manager_name character varying NOT NULL,
+    department character varying NOT NULL,
+    title character varying NOT NULL,
+    country character varying NOT NULL,
+    state character varying NOT NULL,
+    city character varying NOT NULL,
+    employment_status character varying NOT NULL,
+    employment_type public.hr_employment_type_enum NOT NULL,
+    comp_region character varying NOT NULL,
+    comp_currency character varying NOT NULL,
+    people_manager boolean NOT NULL,
+    base_salary numeric(12,2) NOT NULL,
+    one_time_bonus numeric(12,2) NOT NULL,
+    equity numeric(12,2) NOT NULL,
+    equity_recommended numeric(12,2) NOT NULL,
+    start_date date NOT NULL,
+    last_date date
+);
+
+
+ALTER TABLE public.hr OWNER TO "hr-ms";
+
+--
+-- Name: hr_collections; Type: TABLE; Schema: public; Owner: hr-ms
+--
+
+CREATE TABLE public.hr_collections (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    type character varying NOT NULL,
+    business_id character varying NOT NULL,
+    value character varying NOT NULL
+);
+
+
+ALTER TABLE public.hr_collections OWNER TO "hr-ms";
+
+--
+-- Name: migrations; Type: TABLE; Schema: public; Owner: hr-ms
+--
+
+CREATE TABLE public.migrations (
+    id integer NOT NULL,
+    "timestamp" bigint NOT NULL,
+    name character varying NOT NULL
+);
+
+
+ALTER TABLE public.migrations OWNER TO "hr-ms";
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE; Schema: public; Owner: hr-ms
+--
+
+CREATE SEQUENCE public.migrations_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.migrations_id_seq OWNER TO "hr-ms";
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: hr-ms
+--
+
+ALTER SEQUENCE public.migrations_id_seq OWNED BY public.migrations.id;
+
+
+--
+-- Name: plan_data; Type: TABLE; Schema: public; Owner: hr-ms
+--
+
+CREATE TABLE public.plan_data (
+    id uuid DEFAULT public.uuid_generate_v4() NOT NULL,
+    plan_id character varying NOT NULL,
+    business_id character varying NOT NULL,
+    value text NOT NULL,
+    date timestamp with time zone NOT NULL,
+    plan_change_type public.hr_plan_change_type_enum NOT NULL,
+    hr_id uuid
+);
+
+
+ALTER TABLE public.plan_data OWNER TO "hr-ms";
+
+--
+-- Name: migrations id; Type: DEFAULT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.migrations ALTER COLUMN id SET DEFAULT nextval('public.migrations_id_seq'::regclass);
+
+
+--
+-- Data for Name: hr; Type: TABLE DATA; Schema: public; Owner: hr-ms
+--
+
+COPY public.hr (id, updated_at, created_at, deleted_at, employee_number, requisition, business_id, first_name, middle_name, last_name, company_email, private_email, gender, sexual_orientation, department_head, manager_name, department, title, country, state, city, employment_status, employment_type, comp_region, comp_currency, people_manager, base_salary, one_time_bonus, equity, equity_recommended, start_date, last_date) FROM stdin;
+d4f6201a-a728-483b-8e12-59c02132a5da	2025-01-07 14:29:03.672647+00	2025-01-07 14:29:03.672647+00	\N	1	req0001	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Amanda	Christian	Thompson	amanda@example.com	amanda.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	-	G&A	CEO	USA	Florida	Perezmouth	Active	Full time	USA	USD	t	90296.95	18973.36	42993.61	22450.91	2020-08-24	\N
+019f4e7e-425f-4e94-b207-66cbae5c6c24	2025-01-07 14:29:03.69949+00	2025-01-07 14:29:03.69949+00	\N	2	req0002	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Teresa	Glenn	Buck	teresa@example.com	teresa.buck@gmail.com	Female	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP HR	USA	New York	Ashleystad	Active	Full time	USA	USD	t	153453.91	15778.41	75773.39	10434.50	2023-09-12	\N
+a2aa87a5-8c50-4a0b-aba0-776115bae631	2025-01-07 14:29:03.711679+00	2025-01-07 14:29:03.711679+00	\N	3	req0003	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Todd	Daniel	Morales	todd@example.com	todd.morales@gmail.com	Male	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP Finance	USA	Texas	Lewismouth	Active	Full time	USA	USD	t	187772.32	15009.37	55529.43	13122.88	2020-10-30	\N
+b06aadd5-420e-47fd-afce-e5e96683fbb1	2025-01-07 14:29:03.723581+00	2025-01-07 14:29:03.723581+00	\N	4	req0004	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tanya	Joshua	Griffith	tanya@example.com	tanya.griffith@gmail.com	Female	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Generalist	USA	Illinois	Suttonside	Inactive	Full time	USA	USD	f	75417.25	12639.57	47625.38	11508.42	2024-11-23	2025-01-11
+fe7432f7-773d-4f1d-a429-766357f574bb	2025-01-07 14:29:03.73475+00	2025-01-07 14:29:03.73475+00	\N	5	req0005	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jake	Christopher	Adams	jake@example.com	jake.adams@gmail.com	Male	Heterosexual	Amanda Thompson	Teresa Buck	G&A	Talent Acquisition Specialist	USA	Texas	East Caleb	Inactive	Full time	USA	USD	f	88304.51	6095.83	43875.48	22624.96	2020-09-15	2021-11-18
+1dacd8cd-c0b4-496e-8705-563ef6d42f52	2025-01-07 14:29:03.742687+00	2025-01-07 14:29:03.742687+00	\N	6	req0006	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Joel	Laura	Hanson	joel@example.com	joel.hanson@gmail.com	Non-Binary	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Business Partner	USA	California	Tuckerberg	Active	Full time	USA	USD	f	88138.45	9250.38	80276.07	17139.42	2024-09-06	\N
+19457cda-b19c-4d4c-8ad6-15d8dd602439	2025-01-07 14:29:03.751659+00	2025-01-07 14:29:03.751659+00	\N	7	req0007	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Elizabeth	Olivia	Richardson	elizabeth@example.com	elizabeth.richardson@gmail.com	Female	Prefer not to say	Amanda Thompson	Tedd Morales	G&A	Financial Analyst	USA	New York	Swansonville	Active	Full time	USA	USD	f	60457.99	16782.65	49841.17	45731.01	2022-11-01	\N
+f6696b40-56c1-4238-b9d0-b8c4e72e5054	2025-01-07 14:29:03.761953+00	2025-01-07 14:29:03.761953+00	\N	8	req0008	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Marissa	John	Gonzalez	marissa@example.com	marissa.gonzalez@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	California	Rhondachester	Active	Part time	USA	USD	f	109822.18	19610.38	10260.86	46456.38	2021-10-23	\N
+180b512d-e047-4afa-859f-31f3bab511e4	2025-01-07 14:29:03.771953+00	2025-01-07 14:29:03.771953+00	\N	9	req0009	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Micheal	Mary	Brown	micheal@example.com	micheal.brown@gmail.com	Male	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Texas	Lake Jamesborough	Active	Full time	USA	USD	f	152904.79	15084.18	31036.06	36946.58	2021-05-07	\N
+1e572233-4ae5-4db9-b533-98c7f19af4ef	2025-01-07 14:29:03.786589+00	2025-01-07 14:29:03.786589+00	\N	10	req0010	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Pamela	Michelle	Thompson	pamela@example.com	pamela.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Florida	East Brittanytown	Active	Full time	USA	USD	f	171830.63	14396.35	8851.93	49020.99	2022-12-17	\N
+0fba3759-55a8-4801-9825-fe6f0064d02c	2025-01-07 14:29:03.795303+00	2025-01-07 14:29:03.795303+00	\N	11	req0011	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Wendy	Marilyn	Ross	wendy@example.com	wendy.ross@gmail.com	Female	Heterosexual	Wendy Ross	Amanda Thompson	Marketing	VP Marketing	USA	Illinois	Alexmouth	Active	Full time	USA	USD	t	121289.14	3625.74	14104.10	5472.28	2023-06-29	\N
+1f4f6caf-f2b3-4b74-8e77-f81e9eae0bfa	2025-01-07 14:29:03.803489+00	2025-01-07 14:29:03.803489+00	\N	12	req0012	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Courtney	Shelby	Becker	courtney@example.com	courtney.becker@gmail.com	Female	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Demand Generation	USA	Illinois	Greerborough	Inactive	Full time	USA	USD	t	190295.08	6640.68	91819.94	49815.18	2021-05-20	2022-03-18
+02a82eb4-fe28-4564-b621-63f53735625c	2025-01-07 14:29:03.814652+00	2025-01-07 14:29:03.814652+00	\N	13	req0013	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brandi	Cody	Mason	brandi@example.com	brandi.mason@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Content Marketing and Communications	USA	Illinois	North Sophiaport	Active	Full time	USA	USD	t	60554.83	19459.73	10416.43	47051.48	2021-03-15	\N
+04fff3be-748a-4721-a573-faa4d16d3062	2025-01-07 14:29:03.822483+00	2025-01-07 14:29:03.822483+00	\N	14	req0014	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Michael	Whitney	Rivers	michael@example.com	michael.rivers@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Growth Marketing	USA	Illinois	North Oliviafurt	Inactive	Advisor	USA	USD	t	151356.52	17415.02	84312.46	42077.88	2024-11-16	\N
+bd208579-68b8-4031-8d6c-085a9598ff4a	2025-01-07 14:29:03.831212+00	2025-01-07 14:29:03.831212+00	\N	15	req0015	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kevin	Todd	Riddle	kevin@example.com	kevin.riddle@gmail.com	Non-Binary	Gay/Lesbian	Wendy Ross	Courtney Becker	Marketing	Growth Marketing Analyst	USA	Illinois	Katherinemouth	Inactive	Full time	USA	USD	f	150452.68	4783.75	42284.27	38328.22	2024-12-13	\N
+b3168d7f-7abb-44d1-9b4b-ad0e6f731008	2025-01-07 14:29:03.842123+00	2025-01-07 14:29:03.842123+00	\N	16	req0016	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Beverly	Charles	Martinez	beverly@example.com	beverly.martinez@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Illinois	West Ronaldborough	Active	Consultant	USA	USD	f	81599.24	14312.08	3183.19	27400.67	2024-06-30	\N
+85490417-7e8b-448e-8d15-203f3b74e7d8	2025-01-07 14:29:03.84956+00	2025-01-07 14:29:03.84956+00	\N	17	req0017	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Aaron	Jennifer	Jensen	aaron@example.com	aaron.jensen@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Florida	East Davidtown	Inactive	Full time	USA	USD	f	69997.44	1212.78	64957.27	35183.60	2025-02-24	\N
+84a0a763-4356-4bdf-ba7d-521ac23dd670	2025-01-07 14:29:03.857794+00	2025-01-07 14:29:03.857794+00	\N	18	req0018	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Patricia	Christopher	Jackson	patricia@example.com	patricia.jackson@gmail.com	Female	Heterosexual	Wendy Ross	Brandi Mason	Marketing	Communications Specialist	USA	Texas	South Michellemouth	Inactive	Full time	USA	USD	f	99486.42	15437.37	5011.81	2052.14	2024-12-27	\N
+7a934a1f-4ed8-4054-8826-15e8194b5cc2	2025-01-07 14:29:03.866834+00	2025-01-07 14:29:03.866834+00	\N	19	req0019	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jason	Robert	Bell	jason@example.com	jason.bell@gmail.com	Male	Prefer not to say	Wendy Ross	Brandi Mason	Marketing	Social Media Strategist	USA	Texas	Robertston	Inactive	Full time	USA	USD	f	122016.94	11286.00	81559.53	887.91	2025-02-23	\N
+166aab61-f577-4ddf-9b0e-fb7b8eda9d63	2025-01-07 14:29:03.874747+00	2025-01-07 14:29:03.874747+00	\N	20	req0020	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Casey	Beth	Reyes	casey@example.com	casey.reyes@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	New York	Thomaschester	Active	Part time	USA	USD	f	123065.49	1384.09	79453.41	5123.04	2024-04-07	\N
+5aa7db5c-e6f0-4f55-818c-f1b020db6eb8	2025-01-07 14:29:03.881305+00	2025-01-07 14:29:03.881305+00	\N	21	req0021	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Holly	Dawn	Barker	holly@example.com	holly.barker@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	California	Markberg	Active	Full time	USA	USD	f	82645.56	1713.59	50509.60	38177.01	2022-01-17	\N
+dba474e5-7460-414d-90f5-d1ad739bad82	2025-01-07 14:29:03.889858+00	2025-01-07 14:29:03.889858+00	\N	22	req0022	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Aaron	John	Camacho	aaron@example.com	aaron.camacho@gmail.com	Non-Binary	Bisexual	Wendy Ross	Michael Rivers	Marketing	Performance Marketing Specialist 	USA	New York	Stephaniefort	Active	Full time	USA	USD	f	76566.61	3703.13	18644.84	38741.14	2020-12-01	\N
+cb7b7b91-5184-4a29-b7e6-619cc2a6d215	2025-01-07 14:29:03.896136+00	2025-01-07 14:29:03.896136+00	\N	23	req0023	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas	Theresa	Lucero	thomas@example.com	thomas.lucero@gmail.com	Male	Heterosexual	Thomas Lucero	Amanda Thompson	Product	VP Product Management	USA	California	Lake Caseyberg	Active	Full time	USA	USD	f	160118.93	1670.91	10010.12	3843.55	2024-01-08	\N
+e8246ad6-7225-4a72-83a0-45e2f56ff5cd	2025-01-07 14:29:03.903208+00	2025-01-07 14:29:03.903208+00	\N	24	req0024	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Judy	Eric	Calderon	judy@example.com	judy.calderon@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Strategy	USA	Texas	Davidberg	Active	Full time	USA	USD	t	102867.77	15429.30	36086.76	27892.66	2023-12-19	\N
+f0821618-ef76-46eb-ae42-517962f70452	2025-01-07 14:29:03.910673+00	2025-01-07 14:29:03.910673+00	\N	25	req0025	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Alexa	Donna	Jones	alexa@example.com	alexa.jones@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Development	USA	California	North Donaldmouth	Active	Full time	USA	USD	t	124448.00	11747.70	72964.79	22206.50	2023-05-31	\N
+1dd01d66-1f10-4601-a893-fadb8ec5c86c	2025-01-07 14:29:03.918728+00	2025-01-07 14:29:03.918728+00	\N	26	req0026	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brian	Martha	Lambert	brian@example.com	brian.lambert@gmail.com	Male	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Operations	USA	Florida	New Colinshire	Active	Full time	USA	USD	t	130917.32	11205.45	71904.39	27841.16	2022-01-24	2025-04-01
+9ee81793-3897-47b6-9586-06e151265347	2025-01-07 14:29:03.92631+00	2025-01-07 14:29:03.92631+00	\N	27	req0027	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Elizabeth	Michael	Davis	elizabeth@example.com	elizabeth.davis@gmail.com	Female	Prefer not to say	Thomas Lucero	Judy Calderon	Product	Product Strategist	USA	California	New Terrimouth	Active	Advisor	USA	USD	t	145576.38	16543.79	46812.53	19119.68	2022-05-29	\N
+7d18076d-f8f2-4e81-9949-5aadccf531e1	2025-01-07 14:29:03.933935+00	2025-01-07 14:29:03.933935+00	\N	28	req0028	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kristen	Joseph	Christian	kristen@example.com	kristen.christian@gmail.com	Female	Heterosexual	Thomas Lucero	Judy Calderon	Product	Product Analyst	USA	Texas	Larryfurt	Inactive	Full time	USA	USD	f	146974.32	1878.80	5070.71	42337.52	2020-05-26	2023-04-02
+00e17fa4-404e-468e-a9fb-1de924ca9266	2025-01-07 14:29:03.940492+00	2025-01-07 14:29:03.940492+00	\N	29	req0029	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Joseph	Sean	Bailey	joseph@example.com	joseph.bailey@gmail.com	Male	Heterosexual	Thomas Lucero	Judy Calderon	Product	Market Research Specialist	USA	Florida	East Shawn	Active	Full time	USA	USD	f	123775.85	11131.66	85179.06	3043.92	2023-12-24	2025-01-17
+b3ae1e46-8f83-4e89-8469-60bf44f0bdd1	2025-01-07 14:29:03.946855+00	2025-01-07 14:29:03.946855+00	\N	30	req0030	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kenneth	Mary	Fuentes	kenneth@example.com	kenneth.fuentes@gmail.com	Male	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Designer	USA	Illinois	East Ambermouth	Inactive	Full time	USA	USD	f	129914.92	13392.34	97894.79	3911.80	2021-09-23	2023-08-21
+75104c11-fc13-437e-bc03-a12f981e507f	2025-01-07 14:29:03.953076+00	2025-01-07 14:29:03.953076+00	\N	31	req0031	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Priscilla	Amber	Fernandez	priscilla@example.com	priscilla.fernandez@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Texas	Morrisfort	Inactive	Full time	USA	USD	f	157054.76	11361.09	76080.76	35235.07	2025-01-10	\N
+cee74741-80d7-407a-b921-b73ac5123592	2025-01-07 14:29:03.962339+00	2025-01-07 14:29:03.962339+00	\N	32	req0032	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Shannon	Stacey	Hill	shannon@example.com	shannon.hill@gmail.com	Agender	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Illinois	Port Teresa	Active	Full time	USA	USD	f	115989.78	5395.90	67064.39	27632.72	2024-11-06	\N
+6ad687d2-722b-4a1b-a41e-af3686ddc74c	2025-01-07 14:29:03.969227+00	2025-01-07 14:29:03.969227+00	\N	33	req0033	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Christina	Stacy	Villegas	christina@example.com	christina.villegas@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Florida	Port Kim	Active	Full time	USA	USD	f	174614.40	16140.65	40375.02	47765.30	2024-05-17	\N
+4f270616-8d04-47cb-9092-86f9e59e5d38	2025-01-07 14:29:03.976355+00	2025-01-07 14:29:03.976355+00	\N	34	req0034	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Michelle	Christopher	Lang	michelle@example.com	michelle.lang@gmail.com	Female	Gay/Lesbian	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Texas	Melaniebury	Active	Full time	USA	USD	f	194945.60	16265.97	80258.20	33091.22	2023-10-25	\N
+21dbc629-5c0e-42c3-9805-d9cdde5615fa	2025-01-07 14:29:03.983912+00	2025-01-07 14:29:03.983912+00	\N	35	req0035	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Helen	Lori	Smith	helen@example.com	helen.smith@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Analyst	USA	Florida	Adamsstad	Active	Full time	USA	USD	f	178436.28	7786.17	8929.71	39039.26	2021-01-24	\N
+72ef1585-dd23-47ad-aa8e-e91f9bea1e61	2025-01-07 14:29:03.991208+00	2025-01-07 14:29:03.991208+00	\N	36	req0036	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Samuel	Bob	Cross	samuel@example.com	samuel.cross@gmail.com	Male	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Texas	Castrofurt	Inactive	Full time	USA	USD	f	85174.23	1612.71	22926.90	43368.44	2024-12-31	\N
+63437825-fdbf-4e4e-b1f9-c1c1bdb7bb81	2025-01-07 14:29:03.998767+00	2025-01-07 14:29:03.998767+00	\N	37	req0037	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Alyssa	Roberta	Brown	alyssa@example.com	alyssa.brown@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Illinois	New Austin	Inactive	Full time	USA	USD	f	108715.59	1498.80	65060.29	16343.93	2025-03-14	\N
+554fb863-afb8-4885-b2a6-400839792e41	2025-01-07 14:29:04.007982+00	2025-01-07 14:29:04.007982+00	\N	38	req0038	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	James	Jessica	Diaz	james@example.com	james.diaz@gmail.com	Male	Prefer not to say	James Diaz	Amanda Thompson	Sales	VP Sales	USA	California	North Melissa	Active	Full time	USA	USD	t	129366.94	7186.53	74227.18	3137.60	2021-07-27	\N
+a90aff3f-5072-4ca9-bf0d-b71d42ebe3ac	2025-01-07 14:29:04.021733+00	2025-01-07 14:29:04.021733+00	\N	39	req0039	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Adam	Katherine	Sanchez	adam@example.com	adam.sanchez@gmail.com	Prefer not to say	Heterosexual	James Diaz	James Diaz	Sales	Director US Sales	USA	Illinois	West Leahbury	Active	Full time	USA	USD	t	177091.16	9494.85	75870.26	44483.98	2021-09-18	\N
+7ed06405-fd57-448c-9c51-e2917791043d	2025-01-07 14:29:04.029015+00	2025-01-07 14:29:04.029015+00	\N	40	req0040	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas	Adrian	Hunter	thomas@example.com	thomas.hunter@gmail.com	Male	Heterosexual	James Diaz	James Diaz	Sales	Director EMEA Sales	USA	California	Catherinetown	Active	Full time	USA	USD	t	76892.68	17421.84	21580.01	35595.41	2022-11-29	\N
+4c218288-dbf9-42c9-b9f5-63cd3f0a7032	2025-01-07 14:29:04.040957+00	2025-01-07 14:29:04.040957+00	\N	41	req0041	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sara	Shaun	Gordon	sara@example.com	sara.gordon@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Sales Operations	USA	Florida	Michaelberg	Active	Full time	USA	USD	t	149784.29	12490.70	4348.28	17679.71	2023-12-28	\N
+0f32a8bb-c68b-47e8-931b-fdd1e494838d	2025-01-07 14:29:04.052794+00	2025-01-07 14:29:04.052794+00	\N	42	req0042	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Erin	Nicholas	Brandt	erin@example.com	erin.brandt@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Business Development	USA	Texas	Port Connor	Active	Full time	USA	USD	t	57398.91	14677.72	54000.82	30173.49	2020-07-31	\N
+75736f80-e637-4faf-84c3-9368cdda76bc	2025-01-07 14:29:04.062848+00	2025-01-07 14:29:04.062848+00	\N	43	req0043	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jackson	Jacob	Anderson	jackson@example.com	jackson.anderson@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	California	North Josemouth	Inactive	Full time	USA	USD	f	129037.64	12645.61	94294.46	37663.26	2025-03-23	\N
+598fefac-718f-4ec5-ba7b-74a910a509eb	2025-01-07 14:29:04.075519+00	2025-01-07 14:29:04.075519+00	\N	44	req0044	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tamara	Brandi	Reyes	tamara@example.com	tamara.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Port Andre	Active	Full time	USA	USD	f	171629.15	8588.79	65235.08	17617.96	2021-07-15	\N
+2b50b297-b289-4589-9be0-dedc5804ee24	2025-01-07 14:29:04.085129+00	2025-01-07 14:29:04.085129+00	\N	45	req0045	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Spencer	Nicholas	Wells	spencer@example.com	spencer.wells@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Florida	Andrewtown	Active	Full time	USA	USD	f	180369.42	19123.39	45803.71	46601.50	2022-05-31	\N
+a8a35c7e-e5cd-444a-a14c-7bc04b757f08	2025-01-07 14:29:04.096082+00	2025-01-07 14:29:04.096082+00	\N	46	req0046	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Heather	Lynn	Reyes	heather@example.com	heather.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Lake Alan	Inactive	Full time	USA	USD	f	97891.81	17609.51	88700.63	13904.51	2025-03-13	\N
+566f9d76-8296-4019-81e0-034d085d3990	2025-01-07 14:29:04.106942+00	2025-01-07 14:29:04.106942+00	\N	47	req0047	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kathryn	Bianca	Bell	kathryn@example.com	kathryn.bell@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	New York	South Brenda	Active	Full time	USA	USD	f	172662.07	17437.03	2371.35	3203.56	2020-05-26	\N
+b0512825-96f7-47bc-9e9f-045853d26d09	2025-01-07 14:29:04.113971+00	2025-01-07 14:29:04.113971+00	\N	48	req0048	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Cynthia	David	Powers	cynthia@example.com	cynthia.powers@gmail.com	Agender	Prefer not to say	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	New York	Lake Davidside	Active	Full time	USA	USD	f	71138.73	15169.09	51671.51	33168.10	2022-09-17	\N
+de4ab43c-1c5d-41c1-b4c2-a82c2dc9f24a	2025-01-07 14:29:04.120643+00	2025-01-07 14:29:04.120643+00	\N	49	req0049	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jacqueline	Jaime	Burton	jacqueline@example.com	jacqueline.burton@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	California	West Keithchester	Active	Consultant	USA	USD	f	131918.40	1346.68	98193.14	1477.48	2021-12-07	\N
+74c3be20-5b9d-40e4-88ec-9b123b2e8442	2025-01-07 14:29:04.127145+00	2025-01-07 14:29:04.127145+00	\N	50	req0050	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Laurie	Mary	Shaffer	laurie@example.com	laurie.shaffer@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Sales Development Representative	USA	Florida	Rebeccahaven	Active	Full time	USA	USD	f	104829.91	11805.78	9927.87	7664.67	2024-09-01	\N
+cac86c20-9640-4ea5-bf79-a8fe0e04bed6	2025-01-07 14:29:04.137314+00	2025-01-07 14:29:04.137314+00	\N	51	req0051	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Courtney	Christopher	Hughes	courtney@example.com	courtney.hughes@gmail.com	Female	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	New Kimberly	Active	Full time	USA	USD	f	73008.23	10025.47	26751.96	25703.28	2023-10-07	\N
+ff85e17a-0066-4564-a210-34bf5f0da044	2025-01-07 14:29:04.146329+00	2025-01-07 14:29:04.146329+00	\N	52	req0052	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	David	Barbara	Hernandez	david@example.com	david.hernandez@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Texas	North Catherineside	Active	Full time	USA	USD	f	137260.39	18774.63	44244.83	9442.10	2024-03-31	\N
+ff785053-9c22-4bfa-b475-3c4128704c6e	2025-01-07 14:29:04.153215+00	2025-01-07 14:29:04.153215+00	\N	53	req0053	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Edward	Peter	Hobbs	edward@example.com	edward.hobbs@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	Natashamouth	Active	Full time	USA	USD	f	96629.66	18978.63	62114.95	25042.96	2023-02-22	\N
+d5272f9f-bf99-46af-bdc1-fa71dfb58896	2025-01-07 14:29:04.162864+00	2025-01-07 14:29:04.162864+00	\N	54	req0054	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Keith	Michael	Wilson	keith@example.com	keith.wilson@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Florida	New Sean	Active	Full time	USA	USD	f	107574.51	3043.08	90404.82	7528.01	2024-02-13	2024-11-21
+f1931407-014f-466a-b956-931449bb3eda	2025-01-07 14:29:04.171716+00	2025-01-07 14:29:04.171716+00	\N	55	req0055	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Stephen	Elizabeth	Fuller	stephen@example.com	stephen.fuller@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Client Success Specialist	USA	Texas	Kristenside	Inactive	Full time	USA	USD	f	100560.80	13021.00	9540.87	46141.25	2022-10-20	2024-07-25
+bb851b97-e1dc-4f5e-8a9f-cf2f76c564af	2025-01-07 14:29:04.181866+00	2025-01-07 14:29:04.181866+00	\N	56	req0056	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Joel	Ashley	George	joel@example.com	joel.george@gmail.com	Non-Binary	Heterosexual	James Diaz	Thomas Hunter	Sales	Sales Development Representative	USA	Florida	Emilymouth	Inactive	Full time	USA	USD	f	67428.38	18958.33	23453.83	33320.52	2025-02-22	\N
+c915ff1c-ad38-4026-b02e-c9d5b0caafdc	2025-01-07 14:29:04.188913+00	2025-01-07 14:29:04.188913+00	\N	57	req0057	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Nancy	Amber	Mendoza	nancy@example.com	nancy.mendoza@gmail.com	Female	Gay/Lesbian	James Diaz	Sara Gordon	Sales	CRM Administrator	USA	Illinois	South Matthew	Active	Full time	USA	USD	f	109475.93	13682.64	38398.73	7913.90	2022-03-04	\N
+51c8e2a3-20b9-42d0-8214-12941c7f4aa0	2025-01-07 14:29:04.197328+00	2025-01-07 14:29:04.197328+00	\N	58	req0058	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Stephen	Jessica	Mcintyre	stephen@example.com	stephen.mcintyre@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	New York	Port Julie	Inactive	Full time	USA	USD	f	149400.69	1164.36	2259.48	26845.92	2025-01-06	\N
+e250e457-aff2-4821-ad63-74589833208f	2025-01-07 14:29:04.20436+00	2025-01-07 14:29:04.20436+00	\N	59	req0059	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lindsey	Amber	White	lindsey@example.com	lindsey.white@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	Florida	Port Michael	Active	Part time	USA	USD	f	88120.33	13699.17	33627.69	5818.88	2021-04-17	\N
+d3391729-3710-4605-b7b9-aa01dadc66f2	2025-01-07 14:29:04.211183+00	2025-01-07 14:29:04.211183+00	\N	60	req0060	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jennifer	Erica	Bryant	jennifer@example.com	jennifer.bryant@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Illinois	West Lisa	Active	Full time	USA	USD	f	147411.73	15234.98	35513.36	45138.05	2020-12-07	\N
+994f63c3-9222-4008-a0c5-e9f1e61ffab1	2025-01-07 14:29:04.217677+00	2025-01-07 14:29:04.217677+00	\N	61	req0061	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jack	Michael	Davis	jack@example.com	jack.davis@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Texas	Martinezmouth	Inactive	Full time	USA	USD	f	166538.28	18158.37	74738.17	35810.02	2025-03-23	\N
+7a1544c7-ff2d-4642-9a9c-9edd0fe05478	2025-01-07 14:29:04.224316+00	2025-01-07 14:29:04.224316+00	\N	62	req0062	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Veronica	Anthony	Stewart	veronica@example.com	veronica.stewart@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Business Development Representative	USA	Texas	Vasquezshire	Active	Advisor	USA	USD	f	118377.27	1771.48	18944.50	19361.34	2020-11-09	\N
+41f0c4be-bcda-43db-a843-37c6549eef81	2025-01-07 14:29:04.232316+00	2025-01-07 14:29:04.232316+00	\N	63	req0063	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Teresa	Jeremiah	Kirk	teresa@example.com	teresa.kirk@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Strategic Partnerships Associate	USA	New York	Henryview	Active	Full time	USA	USD	f	148795.56	11689.93	4074.78	47941.31	2024-08-19	\N
+650910a2-b691-4d72-acbf-3925f30ffd34	2025-01-07 14:29:04.240478+00	2025-01-07 14:29:04.240478+00	\N	64	req0064	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tiffany	Alexander	Rodriguez	tiffany@example.com	tiffany.rodriguez@gmail.com	Female	Prefer not to say	Tiffany Rodriguez	Amanda Thompson	Engineering	VP Engineering	USA	Texas	Lloydstad	Active	Full time	USA	USD	t	103873.92	15862.67	19070.63	28666.85	2021-06-26	\N
+1c509b17-29c7-4eeb-b1fe-e836dd393405	2025-01-07 14:29:04.248446+00	2025-01-07 14:29:04.248446+00	\N	65	req0065	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jason	Rebecca	Brady	jason@example.com	jason.brady@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Software	Director Software Engineering	USA	Florida	Port Rachel	Active	Full time	USA	USD	t	138545.51	16875.58	21120.77	35803.67	2024-03-11	2025-03-24
+9c51d9c7-604f-4c65-afe8-eed038bb3c3f	2025-01-07 14:29:04.254847+00	2025-01-07 14:29:04.254847+00	\N	66	req0066	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tonya	David	Buckley	tonya@example.com	tonya.buckley@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Testing	Director QA	USA	California	East Amyview	Active	Full time	USA	USD	t	187274.74	6747.52	94741.29	17922.20	2023-03-07	\N
+7c057369-5ff5-41cd-a1f6-6125e04aa390	2025-01-07 14:29:04.260796+00	2025-01-07 14:29:04.260796+00	\N	67	req0067	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Gregory	Christopher	Long	gregory@example.com	gregory.long@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Software Development Manager	USA	New York	Laurenberg	Active	Full time	USA	USD	t	159947.22	17436.08	43944.92	5968.15	2024-01-01	\N
+5956a7d1-c79d-4899-8baf-2fe403c8515f	2025-01-07 14:29:04.266866+00	2025-01-07 14:29:04.266866+00	\N	68	req0068	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Christian	Clinton	Shaffer	christian@example.com	christian.shaffer@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	DevOps Manager	USA	California	Port Crystal	Active	Full time	USA	USD	t	130033.77	15778.66	98522.78	20817.13	2024-03-29	\N
+e09e0cb8-7df4-445f-83fc-f86072a8c28c	2025-01-07 14:29:04.273088+00	2025-01-07 14:29:04.273088+00	\N	69	req0069	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Richard	Brian	Hubbard	richard@example.com	richard.hubbard@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Technical Architecture Manager	USA	Florida	North Lynntown	Active	Full time	USA	USD	t	98308.66	18899.44	1400.17	5795.68	2022-03-29	\N
+45282350-62bb-4f94-8e68-6576b0945454	2025-01-07 14:29:04.279246+00	2025-01-07 14:29:04.279246+00	\N	70	req0070	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Diana	Sue	Osborne	diana@example.com	diana.osborne@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	QA Automation Manager	USA	Florida	East Christinaview	Inactive	Full time	USA	USD	t	183201.85	7205.10	18301.35	18888.71	2021-03-14	2024-06-19
+faabbf20-4a69-4be4-8c71-5c84036d7bfa	2025-01-07 14:29:04.28545+00	2025-01-07 14:29:04.28545+00	\N	71	req0071	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Ashley	Brittany	Walton	ashley@example.com	ashley.walton@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	Manual Testing Manager	USA	Florida	West Christopher	Active	Full time	USA	USD	t	111071.84	15299.11	50600.80	1467.96	2023-03-09	\N
+c5047421-32fd-4829-a744-cef7fd161b04	2025-01-07 14:29:04.292616+00	2025-01-07 14:29:04.292616+00	\N	72	req0072	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Linda	Matthew	Smith	linda@example.com	linda.smith@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Stephaniestad	Active	Consultant	USA	USD	f	74408.10	18937.40	5498.61	23390.53	2022-06-22	2025-02-24
+5379fa45-60b2-4bd6-ada6-ab08d7d44c1f	2025-01-07 14:29:04.29885+00	2025-01-07 14:29:04.29885+00	\N	73	req0073	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas	Joseph	Jenkins	thomas@example.com	thomas.jenkins@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Texas	South Matthew	Active	Full time	USA	USD	f	160022.52	9940.24	72074.31	22514.67	2023-10-10	\N
+3f682f6b-f9d9-45dd-a74e-efe157be4d98	2025-01-07 14:29:04.305809+00	2025-01-07 14:29:04.305809+00	\N	74	req0074	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Arthur	Joshua	Taylor	arthur@example.com	arthur.taylor@gmail.com	Male	Prefer not to say	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Davidstad	Active	Full time	USA	USD	f	73651.10	4063.69	57879.47	15339.53	2022-09-27	\N
+726f59cb-868b-46a9-9b9b-5590449628b7	2025-01-07 14:29:04.313609+00	2025-01-07 14:29:04.313609+00	\N	75	req0075	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Michael	Charles	Stewart	michael@example.com	michael.stewart@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Port Patriciaview	Inactive	Full time	USA	USD	f	161529.40	9746.59	32766.29	20292.64	2025-04-21	\N
+4753931b-42aa-4264-8d49-863b9f0f1de0	2025-01-07 14:29:04.320214+00	2025-01-07 14:29:04.320214+00	\N	76	req0076	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Deborah	Daniel	Moss	deborah@example.com	deborah.moss@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Howardton	Inactive	Full time	USA	USD	f	107724.71	8439.00	6142.60	19005.59	2020-10-10	2022-11-24
+32f615b2-0cce-410a-8075-6b5165e25848	2025-01-07 14:29:04.326921+00	2025-01-07 14:29:04.326921+00	\N	77	req0077	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Paul	Paul	Welch	paul@example.com	paul.welch@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	New York	Terrellview	Inactive	Part time	USA	USD	f	66341.10	14411.44	56327.59	8342.86	2025-01-10	\N
+b91a8f77-deb0-409a-a1f5-b18fd17e6767	2025-01-07 14:29:04.333187+00	2025-01-07 14:29:04.333187+00	\N	78	req0078	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Heather	Kimberly	Moore	heather@example.com	heather.moore@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	California	Nunezland	Inactive	Full time	USA	USD	f	170102.10	16465.09	34060.07	38899.13	2020-03-09	2024-10-12
+aac484e7-7368-4656-97fb-170cb56dc34e	2025-01-07 14:29:04.340196+00	2025-01-07 14:29:04.340196+00	\N	79	req0079	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Alexander	Steven	White	alexander@example.com	alexander.white@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	New Richardburgh	Inactive	Full time	USA	USD	f	196229.50	13968.79	75039.08	14205.78	2025-04-25	\N
+66ca9c1b-0754-46bc-b4bf-1e9f9d97c81e	2025-01-07 14:29:04.34794+00	2025-01-07 14:29:04.34794+00	\N	80	req0080	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brian	Brent	King	brian@example.com	brian.king@gmail.com	Agender	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Texas	Barajasside	Active	Full time	USA	USD	f	182811.01	2883.33	27241.99	11444.85	2021-06-11	\N
+fa6bc916-1d11-4f2a-a320-73189d528625	2025-01-07 14:29:04.355491+00	2025-01-07 14:29:04.355491+00	\N	81	req0081	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Gregory	Barbara	Thomas	gregory@example.com	gregory.thomas@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	Adamsmouth	Active	Full time	USA	USD	f	150738.03	12021.36	59860.97	13488.28	2024-06-18	\N
+2562f2a5-0328-4700-8b2e-ea443c2bca69	2025-01-07 14:29:04.363282+00	2025-01-07 14:29:04.363282+00	\N	82	req0082	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jeremy	Natalie	Ellis	jeremy@example.com	jeremy.ellis@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	Illinois	Lake Ronaldshire	Inactive	Full time	USA	USD	f	196609.81	9406.94	6050.67	30517.26	2024-12-04	\N
+c5952635-88c6-4bd9-8e38-1fc04ed3e8cf	2025-01-07 14:29:04.372821+00	2025-01-07 14:29:04.372821+00	\N	83	req0083	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Marissa	Christine	Johnson	marissa@example.com	marissa.johnson@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	New York	Nathanielview	Active	Part time	USA	USD	f	106537.53	18870.28	21914.45	45550.41	2020-11-01	\N
+23419039-97be-43e1-b7b1-d2ec606b1e89	2025-01-07 14:29:04.381207+00	2025-01-07 14:29:04.381207+00	\N	84	req0084	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Eric	Stephen	Woods	eric@example.com	eric.woods@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Mooreland	Inactive	Full time	USA	USD	f	172850.05	7587.79	68920.75	33581.74	2023-02-27	2024-05-04
+8870b027-ce6f-4986-897b-16f23f9aa688	2025-01-07 14:29:04.390753+00	2025-01-07 14:29:04.390753+00	\N	85	req0085	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Paula	Monica	Moore	paula@example.com	paula.moore@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Elizabethfort	Active	Full time	USA	USD	f	133957.41	9969.64	57809.79	841.08	2021-05-12	\N
+1328a3e9-ff1c-43ba-95d5-257a65326abc	2025-01-07 14:29:04.40275+00	2025-01-07 14:29:04.40275+00	\N	86	req0086	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Melinda	Barbara	Gillespie	melinda@example.com	melinda.gillespie@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	Texas	North Joshua	Active	Full time	USA	USD	f	195806.40	19882.79	80670.07	15166.83	2024-06-20	\N
+5c76b5d4-0f49-484b-a9b3-113a60d4ec04	2025-01-07 14:29:04.409916+00	2025-01-07 14:29:04.409916+00	\N	87	req0087	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Evelyn	Nicholas	Duncan	evelyn@example.com	evelyn.duncan@gmail.com	Non-Binary	Prefer not to say	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	New York	West Joshua	Inactive	Full time	USA	USD	f	114133.42	9532.10	23725.14	32370.76	2024-12-20	\N
+8091369d-ee78-4547-b245-739d9ca273a4	2025-01-07 14:29:04.416072+00	2025-01-07 14:29:04.416072+00	\N	88	req0088	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Nicholas	Robert	Myers	nicholas@example.com	nicholas.myers@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	Site Reliability Engineer	USA	California	North Stacey	Active	Full time	USA	USD	f	97597.74	2036.08	92221.36	11614.11	2023-12-01	\N
+60de62e4-df6b-4df3-9ed8-e91084b9439b	2025-01-07 14:29:04.422275+00	2025-01-07 14:29:04.422275+00	\N	89	req0089	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	James	Melvin	Campbell	james@example.com	james.campbell@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	California	Calhounfurt	Active	Advisor	USA	USD	f	156242.91	4727.45	49660.58	39563.72	2021-04-12	\N
+29f592c9-294b-442a-8c00-621e54169731	2025-01-07 14:29:04.429408+00	2025-01-07 14:29:04.429408+00	\N	90	req0090	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sarah	Elijah	Kennedy	sarah@example.com	sarah.kennedy@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	Illinois	New Jeffrey	Active	Full time	USA	USD	f	53096.99	5122.33	34908.12	15363.82	2022-02-01	2025-02-09
+63b23636-3e1e-4fc2-bb35-457bf5e13e7f	2025-01-07 14:29:04.435508+00	2025-01-07 14:29:04.435508+00	\N	91	req0091	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Matthew	Lance	Wood	matthew@example.com	matthew.wood@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Test Automation Specialist	USA	Illinois	East Alejandraberg	Inactive	Full time	USA	USD	f	115527.50	6330.81	37487.86	8774.44	2023-04-28	2024-07-31
+4d6b2b8a-bdd9-4a4e-88a4-54d268399a25	2025-01-07 14:29:04.441677+00	2025-01-07 14:29:04.441677+00	\N	92	req0092	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kim	Lindsey	Edwards	kim@example.com	kim.edwards@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Mendozaville	Active	Full time	USA	USD	f	157466.80	9143.79	95983.33	21637.13	2022-07-02	2025-03-03
+b93cc71f-27e6-4b10-9fac-f416ebeb856e	2025-01-07 14:29:04.449586+00	2025-01-07 14:29:04.449586+00	\N	93	req0093	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	David	Chris	Hickman	david@example.com	david.hickman@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Jessicashire	Inactive	Full time	USA	USD	f	117728.78	4411.88	67144.46	49711.06	2021-07-11	2021-12-08
+60600ce3-7384-4e93-b42d-ac12d7e36f4d	2025-01-07 14:29:04.458616+00	2025-01-07 14:29:04.458616+00	\N	94	req0094	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lisa	Russell	Brown	lisa@example.com	lisa.brown@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Illinois	Brownport	Inactive	Full time	USA	USD	f	66451.22	18867.71	51503.65	40852.14	2021-12-11	2023-10-14
+f5afc8f2-733a-4d06-9edc-dc38c453aa11	2025-01-07 14:29:04.469777+00	2025-01-07 14:29:04.469777+00	\N	95	req0095	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Stephanie	Lauren	Barnes	stephanie@example.com	stephanie.barnes@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Texas	Cookbury	Inactive	Full time	USA	USD	f	80978.87	2973.25	4403.44	48610.63	2022-12-27	2024-05-26
+c427110c-1ae4-4dfc-9e24-31b175ca79b2	2025-01-07 14:29:04.478206+00	2025-01-07 14:29:04.478206+00	\N	96	req0096	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brandy	Tyler	Bishop	brandy@example.com	brandy.bishop@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Florida	West Lauriemouth	Active	Full time	USA	USD	f	140714.12	2792.18	40470.30	41215.08	2024-06-10	2025-02-11
+04f96e66-d664-4e82-a710-80be7cca28c0	2025-01-07 14:29:04.484866+00	2025-01-07 14:29:04.484866+00	\N	97	req0097	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	David	Sherry	Ferguson	david@example.com	david.ferguson@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	Port Adrian	Inactive	Full time	USA	USD	f	182192.05	18451.36	1610.71	49552.03	2024-07-26	2024-09-30
+7746cd2b-174d-4fb2-a72a-670b4933ac57	2025-01-07 14:29:04.491348+00	2025-01-07 14:29:04.491348+00	\N	98	req0098	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jonathan	Sherry	Ramos	jonathan@example.com	jonathan.ramos@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	West Pamela	Inactive	Full time	USA	USD	f	174948.14	13821.20	1767.68	24880.38	2022-03-18	2023-01-11
+6df48add-fe60-4190-8cff-dfab4dd62389	2025-01-07 14:29:04.497692+00	2025-01-07 14:29:04.497692+00	\N	99	req0099	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jacob	Brian	Pham	jacob@example.com	jacob.pham@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	Illinois	Rogersport	Inactive	Full time	USA	USD	f	197894.63	19998.59	3701.63	23922.47	2022-05-29	2023-09-11
+c61886ad-af4d-4a79-ac76-1c7237c1e780	2025-01-07 14:29:04.504047+00	2025-01-07 14:29:04.504047+00	\N	100	req0100	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kaitlin	Christopher	Collier	kaitlin@example.com	kaitlin.collier@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	New York	Port Stephenburgh	Inactive	Part time	USA	USD	f	54187.30	18474.77	52191.03	29461.69	2023-07-12	2024-03-18
+ae96afd6-4d39-4a3d-98eb-16565d2b8130	2024-12-23 17:24:25.792551+00	2024-12-23 17:24:25.792551+00	\N	11	req0011	25561fe1-cc92-422a-af60-00ce518a62f0	Wendy	Marilyn	Ross	wendy@example.com	wendy.ross@gmail.com	Female	Heterosexual	Wendy Ross	Amanda Thompson	Marketing	VP Marketing	USA	Illinois	Alexmouth	Active	Full time	USA	USD	t	121289.14	3625.74	14104.10	5472.28	2023-06-29	\N
+ab81f1ea-157d-4ab4-bc13-089b663244dd	2024-12-23 17:24:25.695597+00	2024-12-23 17:24:25.695597+00	\N	1	req0001	25561fe1-cc92-422a-af60-00ce518a62f0	Amanda	Christian	Thompson	amanda@example.com	amanda.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	-	G&A	CEO	USA	Florida	Perezmouth	Active	Full time	USA	USD	t	90296.95	18973.36	42993.61	22450.91	2020-08-24	\N
+e7f907d6-85d2-4da3-8bdd-e1dc0125822e	2024-12-23 17:24:25.708091+00	2024-12-23 17:24:25.708091+00	\N	2	req0002	25561fe1-cc92-422a-af60-00ce518a62f0	Teresa	Glenn	Buck	teresa@example.com	teresa.buck@gmail.com	Female	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP HR	USA	New York	Ashleystad	Active	Full time	USA	USD	t	153453.91	15778.41	75773.39	10434.50	2023-09-12	\N
+d041d3a7-991d-4d6c-ab2f-cc228beb893a	2024-12-23 17:24:25.718153+00	2024-12-23 17:24:25.718153+00	\N	3	req0003	25561fe1-cc92-422a-af60-00ce518a62f0	Todd	Daniel	Morales	todd@example.com	todd.morales@gmail.com	Male	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP Finance	USA	Texas	Lewismouth	Active	Full time	USA	USD	t	187772.32	15009.37	55529.43	13122.88	2020-10-30	\N
+bc1886ae-d5ad-447c-be41-fd7ca7003d33	2024-12-23 17:24:25.729156+00	2024-12-23 17:24:25.729156+00	\N	4	req0004	25561fe1-cc92-422a-af60-00ce518a62f0	Tanya	Joshua	Griffith	tanya@example.com	tanya.griffith@gmail.com	Female	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Generalist	USA	Illinois	Suttonside	Inactive	Full time	USA	USD	f	75417.25	12639.57	47625.38	11508.42	2024-11-23	2025-01-11
+2f06c26d-bda2-413b-9ca8-64f01f269bf5	2024-12-23 17:24:25.73856+00	2024-12-23 17:24:25.73856+00	\N	5	req0005	25561fe1-cc92-422a-af60-00ce518a62f0	Jake	Christopher	Adams	jake@example.com	jake.adams@gmail.com	Male	Heterosexual	Amanda Thompson	Teresa Buck	G&A	Talent Acquisition Specialist	USA	Texas	East Caleb	Inactive	Full time	USA	USD	f	88304.51	6095.83	43875.48	22624.96	2020-09-15	2021-11-18
+a743b033-2501-44ad-8e7f-fd8609a44cb2	2024-12-23 17:24:25.74846+00	2024-12-23 17:24:25.74846+00	\N	6	req0006	25561fe1-cc92-422a-af60-00ce518a62f0	Joel	Laura	Hanson	joel@example.com	joel.hanson@gmail.com	Non-Binary	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Business Partner	USA	California	Tuckerberg	Active	Full time	USA	USD	f	88138.45	9250.38	80276.07	17139.42	2024-09-06	\N
+070f9e22-5eff-4635-bd24-1437c48cca8d	2024-12-23 17:24:25.757841+00	2024-12-23 17:24:25.757841+00	\N	7	req0007	25561fe1-cc92-422a-af60-00ce518a62f0	Elizabeth	Olivia	Richardson	elizabeth@example.com	elizabeth.richardson@gmail.com	Female	Prefer not to say	Amanda Thompson	Tedd Morales	G&A	Financial Analyst	USA	New York	Swansonville	Active	Full time	USA	USD	f	60457.99	16782.65	49841.17	45731.01	2022-11-01	\N
+880d117d-e3a5-4be7-932d-dce0f74e5496	2024-12-23 17:24:25.7667+00	2024-12-23 17:24:25.7667+00	\N	8	req0008	25561fe1-cc92-422a-af60-00ce518a62f0	Marissa	John	Gonzalez	marissa@example.com	marissa.gonzalez@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	California	Rhondachester	Active	Part time	USA	USD	f	109822.18	19610.38	10260.86	46456.38	2021-10-23	\N
+4e8f334e-fe2c-49ff-aa99-c739e1e66c9e	2024-12-23 17:24:25.7755+00	2024-12-23 17:24:25.7755+00	\N	9	req0009	25561fe1-cc92-422a-af60-00ce518a62f0	Micheal	Mary	Brown	micheal@example.com	micheal.brown@gmail.com	Male	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Texas	Lake Jamesborough	Active	Full time	USA	USD	f	152904.79	15084.18	31036.06	36946.58	2021-05-07	\N
+2c7a0cb2-51b8-4134-acc3-5a9c79faa14f	2024-12-23 17:24:25.783119+00	2024-12-23 17:24:25.783119+00	\N	10	req0010	25561fe1-cc92-422a-af60-00ce518a62f0	Pamela	Michelle	Thompson	pamela@example.com	pamela.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Florida	East Brittanytown	Active	Full time	USA	USD	f	171830.63	14396.35	8851.93	49020.99	2022-12-17	\N
+6c19543b-1512-4bd5-8551-63e16b7b737e	2024-12-23 17:24:25.802419+00	2024-12-23 17:24:25.802419+00	\N	12	req0012	25561fe1-cc92-422a-af60-00ce518a62f0	Courtney	Shelby	Becker	courtney@example.com	courtney.becker@gmail.com	Female	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Demand Generation	USA	Illinois	Greerborough	Inactive	Full time	USA	USD	t	190295.08	6640.68	91819.94	49815.18	2021-05-20	2022-03-18
+a6095fef-e8a8-41ba-8cc5-403748b33385	2024-12-23 17:24:25.810134+00	2024-12-23 17:24:25.810134+00	\N	13	req0013	25561fe1-cc92-422a-af60-00ce518a62f0	Brandi	Cody	Mason	brandi@example.com	brandi.mason@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Content Marketing and Communications	USA	Illinois	North Sophiaport	Active	Full time	USA	USD	t	60554.83	19459.73	10416.43	47051.48	2021-03-15	\N
+c5f6d2d2-0c5a-48a3-b123-b182e9713875	2024-12-23 17:24:25.817822+00	2024-12-23 17:24:25.817822+00	\N	14	req0014	25561fe1-cc92-422a-af60-00ce518a62f0	Michael	Whitney	Rivers	michael@example.com	michael.rivers@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Growth Marketing	USA	Illinois	North Oliviafurt	Inactive	Advisor	USA	USD	t	151356.52	17415.02	84312.46	42077.88	2024-11-16	\N
+4f0e5175-83c8-4a31-b50d-d90a31562be2	2024-12-23 17:24:25.826835+00	2024-12-23 17:24:25.826835+00	\N	15	req0015	25561fe1-cc92-422a-af60-00ce518a62f0	Kevin	Todd	Riddle	kevin@example.com	kevin.riddle@gmail.com	Non-Binary	Gay/Lesbian	Wendy Ross	Courtney Becker	Marketing	Growth Marketing Analyst	USA	Illinois	Katherinemouth	Inactive	Full time	USA	USD	f	150452.68	4783.75	42284.27	38328.22	2024-12-13	\N
+5fae98e5-531d-429b-80a4-16975185f277	2024-12-23 17:24:25.836347+00	2024-12-23 17:24:25.836347+00	\N	16	req0016	25561fe1-cc92-422a-af60-00ce518a62f0	Beverly	Charles	Martinez	beverly@example.com	beverly.martinez@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Illinois	West Ronaldborough	Active	Consultant	USA	USD	f	81599.24	14312.08	3183.19	27400.67	2024-06-30	\N
+68119d42-c5bf-443c-9c6f-d8fa1a9c08ee	2024-12-23 17:24:25.842469+00	2024-12-23 17:24:25.842469+00	\N	17	req0017	25561fe1-cc92-422a-af60-00ce518a62f0	Aaron	Jennifer	Jensen	aaron@example.com	aaron.jensen@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Florida	East Davidtown	Inactive	Full time	USA	USD	f	69997.44	1212.78	64957.27	35183.60	2025-02-24	\N
+a4a20174-bd90-4ce5-94eb-b6886087dd85	2024-12-23 17:24:25.851495+00	2024-12-23 17:24:25.851495+00	\N	18	req0018	25561fe1-cc92-422a-af60-00ce518a62f0	Patricia	Christopher	Jackson	patricia@example.com	patricia.jackson@gmail.com	Female	Heterosexual	Wendy Ross	Brandi Mason	Marketing	Communications Specialist	USA	Texas	South Michellemouth	Inactive	Full time	USA	USD	f	99486.42	15437.37	5011.81	2052.14	2024-12-27	\N
+ca793895-c5d6-4031-915a-5cf0c57f6b95	2024-12-23 17:24:25.858929+00	2024-12-23 17:24:25.858929+00	\N	19	req0019	25561fe1-cc92-422a-af60-00ce518a62f0	Jason	Robert	Bell	jason@example.com	jason.bell@gmail.com	Male	Prefer not to say	Wendy Ross	Brandi Mason	Marketing	Social Media Strategist	USA	Texas	Robertston	Inactive	Full time	USA	USD	f	122016.94	11286.00	81559.53	887.91	2025-02-23	\N
+9d18955c-a3f2-4d43-a956-3c2ab81e549c	2024-12-23 17:24:25.867922+00	2024-12-23 17:24:25.867922+00	\N	20	req0020	25561fe1-cc92-422a-af60-00ce518a62f0	Casey	Beth	Reyes	casey@example.com	casey.reyes@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	New York	Thomaschester	Active	Part time	USA	USD	f	123065.49	1384.09	79453.41	5123.04	2024-04-07	\N
+45b80c7c-d127-40db-afb6-01c1dd346962	2024-12-23 17:24:25.874484+00	2024-12-23 17:24:25.874484+00	\N	21	req0021	25561fe1-cc92-422a-af60-00ce518a62f0	Holly	Dawn	Barker	holly@example.com	holly.barker@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	California	Markberg	Active	Full time	USA	USD	f	82645.56	1713.59	50509.60	38177.01	2022-01-17	\N
+75306033-cf95-4cf4-8507-039c7adfdf77	2024-12-23 17:24:25.882137+00	2024-12-23 17:24:25.882137+00	\N	22	req0022	25561fe1-cc92-422a-af60-00ce518a62f0	Aaron	John	Camacho	aaron@example.com	aaron.camacho@gmail.com	Non-Binary	Bisexual	Wendy Ross	Michael Rivers	Marketing	Performance Marketing Specialist 	USA	New York	Stephaniefort	Active	Full time	USA	USD	f	76566.61	3703.13	18644.84	38741.14	2020-12-01	\N
+0d26461c-462b-4907-a20e-7bee6ed3b1b5	2024-12-23 17:24:25.890856+00	2024-12-23 17:24:25.890856+00	\N	23	req0023	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas	Theresa	Lucero	thomas@example.com	thomas.lucero@gmail.com	Male	Heterosexual	Thomas Lucero	Amanda Thompson	Product	VP Product Management	USA	California	Lake Caseyberg	Active	Full time	USA	USD	f	160118.93	1670.91	10010.12	3843.55	2024-01-08	\N
+056a5d38-bf2f-4ffc-bc81-c24044703b39	2024-12-23 17:24:25.900946+00	2024-12-23 17:24:25.900946+00	\N	24	req0024	25561fe1-cc92-422a-af60-00ce518a62f0	Judy	Eric	Calderon	judy@example.com	judy.calderon@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Strategy	USA	Texas	Davidberg	Active	Full time	USA	USD	t	102867.77	15429.30	36086.76	27892.66	2023-12-19	\N
+cb93c7ba-0782-45b7-a584-f7ec1d3a8eb9	2024-12-23 17:24:25.908502+00	2024-12-23 17:24:25.908502+00	\N	25	req0025	25561fe1-cc92-422a-af60-00ce518a62f0	Alexa	Donna	Jones	alexa@example.com	alexa.jones@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Development	USA	California	North Donaldmouth	Active	Full time	USA	USD	t	124448.00	11747.70	72964.79	22206.50	2023-05-31	\N
+e71647fd-79d6-4515-9d86-4aca13e47eb0	2024-12-23 17:24:25.916017+00	2024-12-23 17:24:25.916017+00	\N	26	req0026	25561fe1-cc92-422a-af60-00ce518a62f0	Brian	Martha	Lambert	brian@example.com	brian.lambert@gmail.com	Male	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Operations	USA	Florida	New Colinshire	Active	Full time	USA	USD	t	130917.32	11205.45	71904.39	27841.16	2022-01-24	2025-04-01
+1f481daa-728e-4b0c-8cd7-575f0929a4fd	2024-12-23 17:24:25.92465+00	2024-12-23 17:24:25.92465+00	\N	27	req0027	25561fe1-cc92-422a-af60-00ce518a62f0	Elizabeth	Michael	Davis	elizabeth@example.com	elizabeth.davis@gmail.com	Female	Prefer not to say	Thomas Lucero	Judy Calderon	Product	Product Strategist	USA	California	New Terrimouth	Active	Advisor	USA	USD	t	145576.38	16543.79	46812.53	19119.68	2022-05-29	\N
+232db999-e7a0-4d59-bb1e-14765084f9a6	2024-12-23 17:24:25.931958+00	2024-12-23 17:24:25.931958+00	\N	28	req0028	25561fe1-cc92-422a-af60-00ce518a62f0	Kristen	Joseph	Christian	kristen@example.com	kristen.christian@gmail.com	Female	Heterosexual	Thomas Lucero	Judy Calderon	Product	Product Analyst	USA	Texas	Larryfurt	Inactive	Full time	USA	USD	f	146974.32	1878.80	5070.71	42337.52	2020-05-26	2023-04-02
+3ba0c6b3-0169-4d47-81c6-1212cef7e2e7	2024-12-23 17:24:25.939381+00	2024-12-23 17:24:25.939381+00	\N	29	req0029	25561fe1-cc92-422a-af60-00ce518a62f0	Joseph	Sean	Bailey	joseph@example.com	joseph.bailey@gmail.com	Male	Heterosexual	Thomas Lucero	Judy Calderon	Product	Market Research Specialist	USA	Florida	East Shawn	Active	Full time	USA	USD	f	123775.85	11131.66	85179.06	3043.92	2023-12-24	2025-01-17
+0749eb29-3319-4169-9d87-660cc965e76c	2024-12-23 17:24:25.948964+00	2024-12-23 17:24:25.948964+00	\N	30	req0030	25561fe1-cc92-422a-af60-00ce518a62f0	Kenneth	Mary	Fuentes	kenneth@example.com	kenneth.fuentes@gmail.com	Male	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Designer	USA	Illinois	East Ambermouth	Inactive	Full time	USA	USD	f	129914.92	13392.34	97894.79	3911.80	2021-09-23	2023-08-21
+bfafa154-909a-45c2-bda4-a76605ae3766	2024-12-23 17:24:25.956719+00	2024-12-23 17:24:25.956719+00	\N	31	req0031	25561fe1-cc92-422a-af60-00ce518a62f0	Priscilla	Amber	Fernandez	priscilla@example.com	priscilla.fernandez@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Texas	Morrisfort	Inactive	Full time	USA	USD	f	157054.76	11361.09	76080.76	35235.07	2025-01-10	\N
+e65d649d-8aa1-4483-9532-b859994cd677	2024-12-23 17:24:25.964024+00	2024-12-23 17:24:25.964024+00	\N	32	req0032	25561fe1-cc92-422a-af60-00ce518a62f0	Shannon	Stacey	Hill	shannon@example.com	shannon.hill@gmail.com	Agender	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Illinois	Port Teresa	Active	Full time	USA	USD	f	115989.78	5395.90	67064.39	27632.72	2024-11-06	\N
+d9aacaa3-6590-4986-a8df-43eb62cbec7d	2024-12-23 17:24:25.971529+00	2024-12-23 17:24:25.971529+00	\N	33	req0033	25561fe1-cc92-422a-af60-00ce518a62f0	Christina	Stacy	Villegas	christina@example.com	christina.villegas@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Florida	Port Kim	Active	Full time	USA	USD	f	174614.40	16140.65	40375.02	47765.30	2024-05-17	\N
+9f35bccb-8766-4ea3-9ac7-ad554a3c1a0c	2024-12-23 17:24:25.977806+00	2024-12-23 17:24:25.977806+00	\N	34	req0034	25561fe1-cc92-422a-af60-00ce518a62f0	Michelle	Christopher	Lang	michelle@example.com	michelle.lang@gmail.com	Female	Gay/Lesbian	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Texas	Melaniebury	Active	Full time	USA	USD	f	194945.60	16265.97	80258.20	33091.22	2023-10-25	\N
+9a7ddf8a-243c-4e5a-87f2-53822d7b10e0	2024-12-23 17:24:25.986328+00	2024-12-23 17:24:25.986328+00	\N	35	req0035	25561fe1-cc92-422a-af60-00ce518a62f0	Helen	Lori	Smith	helen@example.com	helen.smith@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Analyst	USA	Florida	Adamsstad	Active	Full time	USA	USD	f	178436.28	7786.17	8929.71	39039.26	2021-01-24	\N
+6819b226-ae2a-46f3-bc7a-37d24e8aadf6	2024-12-23 17:24:25.993642+00	2024-12-23 17:24:25.993642+00	\N	36	req0036	25561fe1-cc92-422a-af60-00ce518a62f0	Samuel	Bob	Cross	samuel@example.com	samuel.cross@gmail.com	Male	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Texas	Castrofurt	Inactive	Full time	USA	USD	f	85174.23	1612.71	22926.90	43368.44	2024-12-31	\N
+93eddce0-25cf-4bc6-b95d-2d20cfea89b4	2024-12-23 17:24:26.001851+00	2024-12-23 17:24:26.001851+00	\N	37	req0037	25561fe1-cc92-422a-af60-00ce518a62f0	Alyssa	Roberta	Brown	alyssa@example.com	alyssa.brown@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Illinois	New Austin	Inactive	Full time	USA	USD	f	108715.59	1498.80	65060.29	16343.93	2025-03-14	\N
+9d61af22-473e-4805-95a4-edf9ef8abc52	2024-12-23 17:24:26.00946+00	2024-12-23 17:24:26.00946+00	\N	38	req0038	25561fe1-cc92-422a-af60-00ce518a62f0	James	Jessica	Diaz	james@example.com	james.diaz@gmail.com	Male	Prefer not to say	Amanda Thompson	Amanda Thompson	Sales	VP Sales	USA	California	North Melissa	Active	Full time	USA	USD	t	129366.94	7186.53	74227.18	3137.60	2021-07-27	\N
+2ecc54cb-634a-4fb3-982b-b64870b99e27	2024-12-23 17:24:26.022034+00	2024-12-23 17:24:26.022034+00	\N	39	req0039	25561fe1-cc92-422a-af60-00ce518a62f0	Adam	Katherine	Sanchez	adam@example.com	adam.sanchez@gmail.com	Prefer not to say	Heterosexual	James Diaz	James Diaz	Sales	Director US Sales	USA	Illinois	West Leahbury	Active	Full time	USA	USD	t	177091.16	9494.85	75870.26	44483.98	2021-09-18	\N
+099c5115-d7d4-40f1-ac1e-f5460f2eb1da	2024-12-23 17:24:26.032011+00	2024-12-23 17:24:26.032011+00	\N	40	req0040	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas	Adrian	Hunter	thomas@example.com	thomas.hunter@gmail.com	Male	Heterosexual	James Diaz	James Diaz	Sales	Director EMEA Sales	USA	California	Catherinetown	Active	Full time	USA	USD	t	76892.68	17421.84	21580.01	35595.41	2022-11-29	\N
+8352cb0c-490d-441e-8735-affe0fdba064	2024-12-23 17:24:26.039427+00	2024-12-23 17:24:26.039427+00	\N	41	req0041	25561fe1-cc92-422a-af60-00ce518a62f0	Sara	Shaun	Gordon	sara@example.com	sara.gordon@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Sales Operations	USA	Florida	Michaelberg	Active	Full time	USA	USD	t	149784.29	12490.70	4348.28	17679.71	2023-12-28	\N
+99ad0e34-8847-4137-8144-11d7e01fdc8b	2024-12-23 17:24:26.047194+00	2024-12-23 17:24:26.047194+00	\N	42	req0042	25561fe1-cc92-422a-af60-00ce518a62f0	Erin	Nicholas	Brandt	erin@example.com	erin.brandt@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Business Development	USA	Texas	Port Connor	Active	Full time	USA	USD	t	57398.91	14677.72	54000.82	30173.49	2020-07-31	\N
+bdba0336-9a90-4e5b-9f7e-af4d2b25cf9f	2024-12-23 17:24:26.058094+00	2024-12-23 17:24:26.058094+00	\N	43	req0043	25561fe1-cc92-422a-af60-00ce518a62f0	Jackson	Jacob	Anderson	jackson@example.com	jackson.anderson@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	California	North Josemouth	Inactive	Full time	USA	USD	f	129037.64	12645.61	94294.46	37663.26	2025-03-23	\N
+eb9af6c4-53a6-430b-8db7-44035e416622	2024-12-23 17:24:26.065189+00	2024-12-23 17:24:26.065189+00	\N	44	req0044	25561fe1-cc92-422a-af60-00ce518a62f0	Tamara	Brandi	Reyes	tamara@example.com	tamara.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Port Andre	Active	Full time	USA	USD	f	171629.15	8588.79	65235.08	17617.96	2021-07-15	\N
+9a5912b0-2b0b-4073-9ace-e53b1e085661	2024-12-23 17:24:26.072395+00	2024-12-23 17:24:26.072395+00	\N	45	req0045	25561fe1-cc92-422a-af60-00ce518a62f0	Spencer	Nicholas	Wells	spencer@example.com	spencer.wells@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Florida	Andrewtown	Active	Full time	USA	USD	f	180369.42	19123.39	45803.71	46601.50	2022-05-31	\N
+63ff8adb-082a-49d0-92b5-aebcf1c4e302	2024-12-23 17:24:26.079371+00	2024-12-23 17:24:26.079371+00	\N	46	req0046	25561fe1-cc92-422a-af60-00ce518a62f0	Heather	Lynn	Reyes	heather@example.com	heather.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Lake Alan	Inactive	Full time	USA	USD	f	97891.81	17609.51	88700.63	13904.51	2025-03-13	\N
+21f9d889-96ba-4de1-bd0e-7e2ce37c710d	2024-12-23 17:24:26.086423+00	2024-12-23 17:24:26.086423+00	\N	47	req0047	25561fe1-cc92-422a-af60-00ce518a62f0	Kathryn	Bianca	Bell	kathryn@example.com	kathryn.bell@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	New York	South Brenda	Active	Full time	USA	USD	f	172662.07	17437.03	2371.35	3203.56	2020-05-26	\N
+8d8375ab-d6c3-450d-a42c-1aafd1205870	2024-12-23 17:24:26.09785+00	2024-12-23 17:24:26.09785+00	\N	48	req0048	25561fe1-cc92-422a-af60-00ce518a62f0	Cynthia	David	Powers	cynthia@example.com	cynthia.powers@gmail.com	Agender	Prefer not to say	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	New York	Lake Davidside	Active	Full time	USA	USD	f	71138.73	15169.09	51671.51	33168.10	2022-09-17	\N
+5f1be566-c712-4a22-afcd-daf426af5835	2024-12-23 17:24:26.104257+00	2024-12-23 17:24:26.104257+00	\N	49	req0049	25561fe1-cc92-422a-af60-00ce518a62f0	Jacqueline	Jaime	Burton	jacqueline@example.com	jacqueline.burton@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	California	West Keithchester	Active	Consultant	USA	USD	f	131918.40	1346.68	98193.14	1477.48	2021-12-07	\N
+e90a2443-242c-4b88-bffa-71ecf0320205	2024-12-23 17:24:26.112072+00	2024-12-23 17:24:26.112072+00	\N	50	req0050	25561fe1-cc92-422a-af60-00ce518a62f0	Laurie	Mary	Shaffer	laurie@example.com	laurie.shaffer@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Sales Development Representative	USA	Florida	Rebeccahaven	Active	Full time	USA	USD	f	104829.91	11805.78	9927.87	7664.67	2024-09-01	\N
+095cd1f2-a25e-4270-a9b0-135fa7b5a1d9	2024-12-23 17:24:26.119923+00	2024-12-23 17:24:26.119923+00	\N	51	req0051	25561fe1-cc92-422a-af60-00ce518a62f0	Courtney	Christopher	Hughes	courtney@example.com	courtney.hughes@gmail.com	Female	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	New Kimberly	Active	Full time	USA	USD	f	73008.23	10025.47	26751.96	25703.28	2023-10-07	\N
+71f5ad2f-fcbc-4ef4-9698-af1c95f1a29a	2024-12-23 17:24:26.127408+00	2024-12-23 17:24:26.127408+00	\N	52	req0052	25561fe1-cc92-422a-af60-00ce518a62f0	David	Barbara	Hernandez	david@example.com	david.hernandez@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Texas	North Catherineside	Active	Full time	USA	USD	f	137260.39	18774.63	44244.83	9442.10	2024-03-31	\N
+9c285633-8d2e-414e-892a-5e95d85e6858	2024-12-23 17:24:26.13549+00	2024-12-23 17:24:26.13549+00	\N	53	req0053	25561fe1-cc92-422a-af60-00ce518a62f0	Edward	Peter	Hobbs	edward@example.com	edward.hobbs@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	Natashamouth	Active	Full time	USA	USD	f	96629.66	18978.63	62114.95	25042.96	2023-02-22	\N
+37e366c4-7a41-43c1-9671-b109c9f213ae	2024-12-23 17:24:26.144529+00	2024-12-23 17:24:26.144529+00	\N	54	req0054	25561fe1-cc92-422a-af60-00ce518a62f0	Keith	Michael	Wilson	keith@example.com	keith.wilson@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Florida	New Sean	Active	Full time	USA	USD	f	107574.51	3043.08	90404.82	7528.01	2024-02-13	2024-11-21
+209c2846-1578-44b6-b8bb-290296b456d8	2024-12-23 17:24:26.150864+00	2024-12-23 17:24:26.150864+00	\N	55	req0055	25561fe1-cc92-422a-af60-00ce518a62f0	Stephen	Elizabeth	Fuller	stephen@example.com	stephen.fuller@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Client Success Specialist	USA	Texas	Kristenside	Inactive	Full time	USA	USD	f	100560.80	13021.00	9540.87	46141.25	2022-10-20	2024-07-25
+3901b701-2a93-4b14-a5ad-0a4dd5ac7006	2024-12-23 17:24:26.157538+00	2024-12-23 17:24:26.157538+00	\N	56	req0056	25561fe1-cc92-422a-af60-00ce518a62f0	Joel	Ashley	George	joel@example.com	joel.george@gmail.com	Non-Binary	Heterosexual	James Diaz	Thomas Hunter	Sales	Sales Development Representative	USA	Florida	Emilymouth	Inactive	Full time	USA	USD	f	67428.38	18958.33	23453.83	33320.52	2025-02-22	\N
+46e587b0-1b4f-4d85-b27b-9e20faab2867	2024-12-23 17:24:26.167238+00	2024-12-23 17:24:26.167238+00	\N	57	req0057	25561fe1-cc92-422a-af60-00ce518a62f0	Nancy	Amber	Mendoza	nancy@example.com	nancy.mendoza@gmail.com	Female	Gay/Lesbian	James Diaz	Sara Gordon	Sales	CRM Administrator	USA	Illinois	South Matthew	Active	Full time	USA	USD	f	109475.93	13682.64	38398.73	7913.90	2022-03-04	\N
+48e4906b-8f54-40bd-8420-52577ebb877b	2024-12-23 17:24:26.175173+00	2024-12-23 17:24:26.175173+00	\N	58	req0058	25561fe1-cc92-422a-af60-00ce518a62f0	Stephen	Jessica	Mcintyre	stephen@example.com	stephen.mcintyre@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	New York	Port Julie	Inactive	Full time	USA	USD	f	149400.69	1164.36	2259.48	26845.92	2025-01-06	\N
+2fcf454a-b3a5-4b32-8346-20e1f37da0d4	2024-12-23 17:24:26.181507+00	2024-12-23 17:24:26.181507+00	\N	59	req0059	25561fe1-cc92-422a-af60-00ce518a62f0	Lindsey	Amber	White	lindsey@example.com	lindsey.white@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	Florida	Port Michael	Active	Part time	USA	USD	f	88120.33	13699.17	33627.69	5818.88	2021-04-17	\N
+3d7ac004-4c87-4068-99dc-9f84631131a2	2024-12-23 17:24:26.189789+00	2024-12-23 17:24:26.189789+00	\N	60	req0060	25561fe1-cc92-422a-af60-00ce518a62f0	Jennifer	Erica	Bryant	jennifer@example.com	jennifer.bryant@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Illinois	West Lisa	Active	Full time	USA	USD	f	147411.73	15234.98	35513.36	45138.05	2020-12-07	\N
+764917db-ad4e-4d13-94e0-76a10a83e4b5	2024-12-23 17:24:26.198376+00	2024-12-23 17:24:26.198376+00	\N	61	req0061	25561fe1-cc92-422a-af60-00ce518a62f0	Jack	Michael	Davis	jack@example.com	jack.davis@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Texas	Martinezmouth	Inactive	Full time	USA	USD	f	166538.28	18158.37	74738.17	35810.02	2025-03-23	\N
+90fd4672-b37f-491c-8814-a5a902dfec92	2024-12-23 17:24:26.207407+00	2024-12-23 17:24:26.207407+00	\N	62	req0062	25561fe1-cc92-422a-af60-00ce518a62f0	Veronica	Anthony	Stewart	veronica@example.com	veronica.stewart@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Business Development Representative	USA	Texas	Vasquezshire	Active	Advisor	USA	USD	f	118377.27	1771.48	18944.50	19361.34	2020-11-09	\N
+4e757dde-2072-48e1-a845-0d0c454b21b5	2024-12-23 17:24:26.215843+00	2024-12-23 17:24:26.215843+00	\N	63	req0063	25561fe1-cc92-422a-af60-00ce518a62f0	Teresa	Jeremiah	Kirk	teresa@example.com	teresa.kirk@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Strategic Partnerships Associate	USA	New York	Henryview	Active	Full time	USA	USD	f	148795.56	11689.93	4074.78	47941.31	2024-08-19	\N
+c48fa097-1c91-4a7a-b7c6-391fcc6a7e0c	2024-12-23 17:24:26.223808+00	2024-12-23 17:24:26.223808+00	\N	64	req0064	25561fe1-cc92-422a-af60-00ce518a62f0	Tiffany	Alexander	Rodriguez	tiffany@example.com	tiffany.rodriguez@gmail.com	Female	Prefer not to say	Amanda Thompson	Amanda Thompson	Engineering	VP Engineering	USA	Texas	Lloydstad	Active	Full time	USA	USD	t	103873.92	15862.67	19070.63	28666.85	2021-06-26	\N
+671aaf88-0376-4493-b34d-ad0cda171937	2024-12-23 17:24:26.237124+00	2024-12-23 17:24:26.237124+00	\N	65	req0065	25561fe1-cc92-422a-af60-00ce518a62f0	Jason	Rebecca	Brady	jason@example.com	jason.brady@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Software	Director Software Engineering	USA	Florida	Port Rachel	Active	Full time	USA	USD	t	138545.51	16875.58	21120.77	35803.67	2024-03-11	2025-03-24
+20a0ed14-3add-421c-90ab-1c6ed27bf776	2024-12-23 17:24:26.245125+00	2024-12-23 17:24:26.245125+00	\N	66	req0066	25561fe1-cc92-422a-af60-00ce518a62f0	Tonya	David	Buckley	tonya@example.com	tonya.buckley@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Testing	Director QA	USA	California	East Amyview	Active	Full time	USA	USD	t	187274.74	6747.52	94741.29	17922.20	2023-03-07	\N
+22605693-8463-4a92-b668-1ac24bb4aee5	2024-12-23 17:24:26.254162+00	2024-12-23 17:24:26.254162+00	\N	67	req0067	25561fe1-cc92-422a-af60-00ce518a62f0	Gregory	Christopher	Long	gregory@example.com	gregory.long@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Software Development Manager	USA	New York	Laurenberg	Active	Full time	USA	USD	t	159947.22	17436.08	43944.92	5968.15	2024-01-01	\N
+94b02611-5319-4356-888c-b85f6d64b8ee	2024-12-23 17:24:26.263311+00	2024-12-23 17:24:26.263311+00	\N	68	req0068	25561fe1-cc92-422a-af60-00ce518a62f0	Christian	Clinton	Shaffer	christian@example.com	christian.shaffer@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	DevOps Manager	USA	California	Port Crystal	Active	Full time	USA	USD	t	130033.77	15778.66	98522.78	20817.13	2024-03-29	\N
+77c28e59-261a-41ec-b1a4-5b7de9ffa700	2024-12-23 17:24:26.272405+00	2024-12-23 17:24:26.272405+00	\N	69	req0069	25561fe1-cc92-422a-af60-00ce518a62f0	Richard	Brian	Hubbard	richard@example.com	richard.hubbard@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Technical Architecture Manager	USA	Florida	North Lynntown	Active	Full time	USA	USD	t	98308.66	18899.44	1400.17	5795.68	2022-03-29	\N
+4015118b-e467-4496-ab11-35a20132a230	2024-12-23 17:24:26.282383+00	2024-12-23 17:24:26.282383+00	\N	70	req0070	25561fe1-cc92-422a-af60-00ce518a62f0	Diana	Sue	Osborne	diana@example.com	diana.osborne@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	QA Automation Manager	USA	Florida	East Christinaview	Inactive	Full time	USA	USD	t	183201.85	7205.10	18301.35	18888.71	2021-03-14	2024-06-19
+dcc1b9d9-d0a7-48eb-bc0b-0e91d548193b	2024-12-23 17:24:26.290928+00	2024-12-23 17:24:26.290928+00	\N	71	req0071	25561fe1-cc92-422a-af60-00ce518a62f0	Ashley	Brittany	Walton	ashley@example.com	ashley.walton@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	Manual Testing Manager	USA	Florida	West Christopher	Active	Full time	USA	USD	t	111071.84	15299.11	50600.80	1467.96	2023-03-09	\N
+2efa6d18-c1ae-446d-89ef-e0c57404b46e	2024-12-23 17:24:26.300194+00	2024-12-23 17:24:26.300194+00	\N	72	req0072	25561fe1-cc92-422a-af60-00ce518a62f0	Linda	Matthew	Smith	linda@example.com	linda.smith@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Stephaniestad	Active	Consultant	USA	USD	f	74408.10	18937.40	5498.61	23390.53	2022-06-22	2025-02-24
+142b1713-9f5a-4be7-8ce1-ab71a15cb789	2024-12-23 17:24:26.308657+00	2024-12-23 17:24:26.308657+00	\N	73	req0073	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas	Joseph	Jenkins	thomas@example.com	thomas.jenkins@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Texas	South Matthew	Active	Full time	USA	USD	f	160022.52	9940.24	72074.31	22514.67	2023-10-10	\N
+410cfa1c-0e77-4c8e-abef-943592e6c0a7	2024-12-23 17:24:26.317662+00	2024-12-23 17:24:26.317662+00	\N	74	req0074	25561fe1-cc92-422a-af60-00ce518a62f0	Arthur	Joshua	Taylor	arthur@example.com	arthur.taylor@gmail.com	Male	Prefer not to say	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Davidstad	Active	Full time	USA	USD	f	73651.10	4063.69	57879.47	15339.53	2022-09-27	\N
+00e21a49-6c19-4ad7-bf26-3cf37acda048	2024-12-23 17:24:26.328914+00	2024-12-23 17:24:26.328914+00	\N	75	req0075	25561fe1-cc92-422a-af60-00ce518a62f0	Michael	Charles	Stewart	michael@example.com	michael.stewart@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Port Patriciaview	Inactive	Full time	USA	USD	f	161529.40	9746.59	32766.29	20292.64	2025-04-21	\N
+02fd7577-9c2f-4b66-9d33-8aebc011bcc9	2024-12-23 17:24:26.335481+00	2024-12-23 17:24:26.335481+00	\N	76	req0076	25561fe1-cc92-422a-af60-00ce518a62f0	Deborah	Daniel	Moss	deborah@example.com	deborah.moss@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Howardton	Inactive	Full time	USA	USD	f	107724.71	8439.00	6142.60	19005.59	2020-10-10	2022-11-24
+f131e3a4-7490-40ee-8459-26ef69260572	2024-12-23 17:24:26.341754+00	2024-12-23 17:24:26.341754+00	\N	77	req0077	25561fe1-cc92-422a-af60-00ce518a62f0	Paul	Paul	Welch	paul@example.com	paul.welch@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	New York	Terrellview	Inactive	Part time	USA	USD	f	66341.10	14411.44	56327.59	8342.86	2025-01-10	\N
+c5415ddd-574b-4927-9133-c976cd0ffc5a	2024-12-23 17:24:26.350119+00	2024-12-23 17:24:26.350119+00	\N	78	req0078	25561fe1-cc92-422a-af60-00ce518a62f0	Heather	Kimberly	Moore	heather@example.com	heather.moore@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	California	Nunezland	Inactive	Full time	USA	USD	f	170102.10	16465.09	34060.07	38899.13	2020-03-09	2024-10-12
+8047cf32-eaa0-4926-a164-43c878f78360	2024-12-23 17:24:26.356208+00	2024-12-23 17:24:26.356208+00	\N	79	req0079	25561fe1-cc92-422a-af60-00ce518a62f0	Alexander	Steven	White	alexander@example.com	alexander.white@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	New Richardburgh	Inactive	Full time	USA	USD	f	196229.50	13968.79	75039.08	14205.78	2025-04-25	\N
+bda9d9af-807b-4716-97b9-9af569d5d3b6	2024-12-23 17:24:26.362262+00	2024-12-23 17:24:26.362262+00	\N	80	req0080	25561fe1-cc92-422a-af60-00ce518a62f0	Brian	Brent	King	brian@example.com	brian.king@gmail.com	Agender	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Texas	Barajasside	Active	Full time	USA	USD	f	182811.01	2883.33	27241.99	11444.85	2021-06-11	\N
+4d5c4b36-4178-4c13-babf-852c4fb142d2	2024-12-23 17:24:26.368958+00	2024-12-23 17:24:26.368958+00	\N	81	req0081	25561fe1-cc92-422a-af60-00ce518a62f0	Gregory	Barbara	Thomas	gregory@example.com	gregory.thomas@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	Adamsmouth	Active	Full time	USA	USD	f	150738.03	12021.36	59860.97	13488.28	2024-06-18	\N
+4da3b048-9f6e-4d62-a802-565d822b239d	2024-12-23 17:24:26.376845+00	2024-12-23 17:24:26.376845+00	\N	82	req0082	25561fe1-cc92-422a-af60-00ce518a62f0	Jeremy	Natalie	Ellis	jeremy@example.com	jeremy.ellis@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	Illinois	Lake Ronaldshire	Inactive	Full time	USA	USD	f	196609.81	9406.94	6050.67	30517.26	2024-12-04	\N
+664be812-628a-40f7-bada-479d491092fb	2024-12-23 17:24:26.38336+00	2024-12-23 17:24:26.38336+00	\N	83	req0083	25561fe1-cc92-422a-af60-00ce518a62f0	Marissa	Christine	Johnson	marissa@example.com	marissa.johnson@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	New York	Nathanielview	Active	Part time	USA	USD	f	106537.53	18870.28	21914.45	45550.41	2020-11-01	\N
+19ff6236-1e73-443d-a746-ba1ba5cb73be	2024-12-23 17:24:26.391163+00	2024-12-23 17:24:26.391163+00	\N	84	req0084	25561fe1-cc92-422a-af60-00ce518a62f0	Eric	Stephen	Woods	eric@example.com	eric.woods@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Mooreland	Inactive	Full time	USA	USD	f	172850.05	7587.79	68920.75	33581.74	2023-02-27	2024-05-04
+9931569a-ee92-430d-b4e7-879e5087fd8c	2024-12-23 17:24:26.398179+00	2024-12-23 17:24:26.398179+00	\N	85	req0085	25561fe1-cc92-422a-af60-00ce518a62f0	Paula	Monica	Moore	paula@example.com	paula.moore@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Elizabethfort	Active	Full time	USA	USD	f	133957.41	9969.64	57809.79	841.08	2021-05-12	\N
+cc9f1fa6-9928-45f6-bf6d-77750ffa390b	2024-12-23 17:24:26.406693+00	2024-12-23 17:24:26.406693+00	\N	86	req0086	25561fe1-cc92-422a-af60-00ce518a62f0	Melinda	Barbara	Gillespie	melinda@example.com	melinda.gillespie@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	Texas	North Joshua	Active	Full time	USA	USD	f	195806.40	19882.79	80670.07	15166.83	2024-06-20	\N
+b978ecbd-57af-4545-973d-d06c88bec448	2024-12-23 17:24:26.412839+00	2024-12-23 17:24:26.412839+00	\N	87	req0087	25561fe1-cc92-422a-af60-00ce518a62f0	Evelyn	Nicholas	Duncan	evelyn@example.com	evelyn.duncan@gmail.com	Non-Binary	Prefer not to say	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	New York	West Joshua	Inactive	Full time	USA	USD	f	114133.42	9532.10	23725.14	32370.76	2024-12-20	\N
+d1f7d015-ca97-4514-b3bb-7388f56938b5	2024-12-23 17:24:26.421046+00	2024-12-23 17:24:26.421046+00	\N	88	req0088	25561fe1-cc92-422a-af60-00ce518a62f0	Nicholas	Robert	Myers	nicholas@example.com	nicholas.myers@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	Site Reliability Engineer	USA	California	North Stacey	Active	Full time	USA	USD	f	97597.74	2036.08	92221.36	11614.11	2023-12-01	\N
+cc190a8f-db81-4502-a0a1-bda2cdaaf4b8	2024-12-23 17:24:26.430973+00	2024-12-23 17:24:26.430973+00	\N	89	req0089	25561fe1-cc92-422a-af60-00ce518a62f0	James	Melvin	Campbell	james@example.com	james.campbell@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	California	Calhounfurt	Active	Advisor	USA	USD	f	156242.91	4727.45	49660.58	39563.72	2021-04-12	\N
+0144661a-5a00-4b6b-8328-cee100b85309	2024-12-23 17:24:26.437305+00	2024-12-23 17:24:26.437305+00	\N	90	req0090	25561fe1-cc92-422a-af60-00ce518a62f0	Sarah	Elijah	Kennedy	sarah@example.com	sarah.kennedy@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	Illinois	New Jeffrey	Active	Full time	USA	USD	f	53096.99	5122.33	34908.12	15363.82	2022-02-01	2025-02-09
+0eead018-08d5-418d-a6e9-684b29b075cb	2024-12-23 17:24:26.446406+00	2024-12-23 17:24:26.446406+00	\N	91	req0091	25561fe1-cc92-422a-af60-00ce518a62f0	Matthew	Lance	Wood	matthew@example.com	matthew.wood@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Test Automation Specialist	USA	Illinois	East Alejandraberg	Inactive	Full time	USA	USD	f	115527.50	6330.81	37487.86	8774.44	2023-04-28	2024-07-31
+55fd2a19-bd46-48fb-9543-e47a17638a2b	2024-12-23 17:24:26.454735+00	2024-12-23 17:24:26.454735+00	\N	92	req0092	25561fe1-cc92-422a-af60-00ce518a62f0	Kim	Lindsey	Edwards	kim@example.com	kim.edwards@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Mendozaville	Active	Full time	USA	USD	f	157466.80	9143.79	95983.33	21637.13	2022-07-02	2025-03-03
+35e5c8c1-ee83-4037-bd30-c52ab6e221a0	2024-12-23 17:24:26.461779+00	2024-12-23 17:24:26.461779+00	\N	93	req0093	25561fe1-cc92-422a-af60-00ce518a62f0	David	Chris	Hickman	david@example.com	david.hickman@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Jessicashire	Inactive	Full time	USA	USD	f	117728.78	4411.88	67144.46	49711.06	2021-07-11	2021-12-08
+8fbf60d7-06be-4e2b-9971-9430a6b78b80	2024-12-23 17:24:26.468233+00	2024-12-23 17:24:26.468233+00	\N	94	req0094	25561fe1-cc92-422a-af60-00ce518a62f0	Lisa	Russell	Brown	lisa@example.com	lisa.brown@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Illinois	Brownport	Inactive	Full time	USA	USD	f	66451.22	18867.71	51503.65	40852.14	2021-12-11	2023-10-14
+c8fca08e-5773-4e97-aaa9-1eca54e8a04b	2024-12-23 17:24:26.475587+00	2024-12-23 17:24:26.475587+00	\N	95	req0095	25561fe1-cc92-422a-af60-00ce518a62f0	Stephanie	Lauren	Barnes	stephanie@example.com	stephanie.barnes@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Texas	Cookbury	Inactive	Full time	USA	USD	f	80978.87	2973.25	4403.44	48610.63	2022-12-27	2024-05-26
+96de4cab-b3d3-4a0a-937d-80b981f17266	2024-12-23 17:24:26.481463+00	2024-12-23 17:24:26.481463+00	\N	96	req0096	25561fe1-cc92-422a-af60-00ce518a62f0	Brandy	Tyler	Bishop	brandy@example.com	brandy.bishop@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Florida	West Lauriemouth	Active	Full time	USA	USD	f	140714.12	2792.18	40470.30	41215.08	2024-06-10	2025-02-11
+0bcfa722-e528-4897-b70e-9ba0f4644616	2024-12-23 17:24:26.490991+00	2024-12-23 17:24:26.490991+00	\N	97	req0097	25561fe1-cc92-422a-af60-00ce518a62f0	David	Sherry	Ferguson	david@example.com	david.ferguson@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	Port Adrian	Inactive	Full time	USA	USD	f	182192.05	18451.36	1610.71	49552.03	2024-07-26	2024-09-30
+2bb007e6-fb29-4a2b-9d04-eea1b97687dc	2024-12-23 17:24:26.497138+00	2024-12-23 17:24:26.497138+00	\N	98	req0098	25561fe1-cc92-422a-af60-00ce518a62f0	Jonathan	Sherry	Ramos	jonathan@example.com	jonathan.ramos@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	West Pamela	Inactive	Full time	USA	USD	f	174948.14	13821.20	1767.68	24880.38	2022-03-18	2023-01-11
+c8efb0ee-21f4-4bcb-a333-f3b89d427dba	2024-12-23 17:24:26.506176+00	2024-12-23 17:24:26.506176+00	\N	99	req0099	25561fe1-cc92-422a-af60-00ce518a62f0	Jacob	Brian	Pham	jacob@example.com	jacob.pham@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	Illinois	Rogersport	Inactive	Full time	USA	USD	f	197894.63	19998.59	3701.63	23922.47	2022-05-29	2023-09-11
+9e02af0f-30f1-4de3-b8e3-14ce56f7efcd	2024-12-23 17:24:26.512264+00	2024-12-23 17:24:26.512264+00	\N	100	req0100	25561fe1-cc92-422a-af60-00ce518a62f0	Kaitlin	Christopher	Collier	kaitlin@example.com	kaitlin.collier@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	New York	Port Stephenburgh	Inactive	Part time	USA	USD	f	54187.30	18474.77	52191.03	29461.69	2023-07-12	2024-03-18
+d86ccabe-f8af-4ef2-a759-fa5599eb19a5	2024-12-24 11:21:07.168924+00	2024-12-24 11:21:07.168924+00	\N	1	req0001	441d6f69-d278-4450-97ea-de9737ce0f60	Amanda	Christian	Thompson	amanda@example.com	amanda.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	-	G&A	CEO	USA	Florida	Perezmouth	Active	Full time	USA	USD	t	90296.95	18973.36	42993.61	22450.91	2020-08-24	\N
+25bb18c1-d820-493f-ab6c-e1f615e64775	2024-12-24 11:21:07.182669+00	2024-12-24 11:21:07.182669+00	\N	2	req0002	441d6f69-d278-4450-97ea-de9737ce0f60	Teresa	Glenn	Buck	teresa@example.com	teresa.buck@gmail.com	Female	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP HR	USA	New York	Ashleystad	Active	Full time	USA	USD	t	153453.91	15778.41	75773.39	10434.50	2023-09-12	\N
+6bc1d049-bac0-4ac2-a6e5-2afe01737356	2024-12-24 11:21:07.191215+00	2024-12-24 11:21:07.191215+00	\N	3	req0003	441d6f69-d278-4450-97ea-de9737ce0f60	Todd	Daniel	Morales	todd@example.com	todd.morales@gmail.com	Male	Heterosexual	Amanda Thompson	Amanda Thompson	G&A	VP Finance	USA	Texas	Lewismouth	Active	Full time	USA	USD	t	187772.32	15009.37	55529.43	13122.88	2020-10-30	\N
+be04a364-461f-423f-a726-9030f5310224	2024-12-24 11:21:07.201874+00	2024-12-24 11:21:07.201874+00	\N	4	req0004	441d6f69-d278-4450-97ea-de9737ce0f60	Tanya	Joshua	Griffith	tanya@example.com	tanya.griffith@gmail.com	Female	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Generalist	USA	Illinois	Suttonside	Inactive	Full time	USA	USD	f	75417.25	12639.57	47625.38	11508.42	2024-11-23	2025-01-11
+7a6eb511-d781-4d9a-b605-c1a509e25cdb	2024-12-24 11:21:07.209239+00	2024-12-24 11:21:07.209239+00	\N	5	req0005	441d6f69-d278-4450-97ea-de9737ce0f60	Jake	Christopher	Adams	jake@example.com	jake.adams@gmail.com	Male	Heterosexual	Amanda Thompson	Teresa Buck	G&A	Talent Acquisition Specialist	USA	Texas	East Caleb	Inactive	Full time	USA	USD	f	88304.51	6095.83	43875.48	22624.96	2020-09-15	2021-11-18
+e083d3a3-8824-4794-aa2c-85df9dce2746	2024-12-24 11:21:07.217806+00	2024-12-24 11:21:07.217806+00	\N	6	req0006	441d6f69-d278-4450-97ea-de9737ce0f60	Joel	Laura	Hanson	joel@example.com	joel.hanson@gmail.com	Non-Binary	Heterosexual	Amanda Thompson	Teresa Buck	G&A	HR Business Partner	USA	California	Tuckerberg	Active	Full time	USA	USD	f	88138.45	9250.38	80276.07	17139.42	2024-09-06	\N
+724f5615-93ea-456f-826f-3d391d7b7e00	2024-12-24 11:21:07.22655+00	2024-12-24 11:21:07.22655+00	\N	7	req0007	441d6f69-d278-4450-97ea-de9737ce0f60	Elizabeth	Olivia	Richardson	elizabeth@example.com	elizabeth.richardson@gmail.com	Female	Prefer not to say	Amanda Thompson	Tedd Morales	G&A	Financial Analyst	USA	New York	Swansonville	Active	Full time	USA	USD	f	60457.99	16782.65	49841.17	45731.01	2022-11-01	\N
+066c6f34-cc98-4b14-b9db-5b6f4eb8341f	2024-12-24 11:21:07.234807+00	2024-12-24 11:21:07.234807+00	\N	8	req0008	441d6f69-d278-4450-97ea-de9737ce0f60	Marissa	John	Gonzalez	marissa@example.com	marissa.gonzalez@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	California	Rhondachester	Active	Part time	USA	USD	f	109822.18	19610.38	10260.86	46456.38	2021-10-23	\N
+f35ef3d0-735c-4843-b27e-c51c0aef6e7a	2024-12-24 11:21:07.241334+00	2024-12-24 11:21:07.241334+00	\N	9	req0009	441d6f69-d278-4450-97ea-de9737ce0f60	Micheal	Mary	Brown	micheal@example.com	micheal.brown@gmail.com	Male	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Texas	Lake Jamesborough	Active	Full time	USA	USD	f	152904.79	15084.18	31036.06	36946.58	2021-05-07	\N
+2ff0a658-03af-4636-9a09-c70eb6761834	2024-12-24 11:21:07.247655+00	2024-12-24 11:21:07.247655+00	\N	10	req0010	441d6f69-d278-4450-97ea-de9737ce0f60	Pamela	Michelle	Thompson	pamela@example.com	pamela.thompson@gmail.com	Female	Heterosexual	Amanda Thompson	Tedd Morales	G&A	Controller	USA	Florida	East Brittanytown	Active	Full time	USA	USD	f	171830.63	14396.35	8851.93	49020.99	2022-12-17	\N
+7da8dddc-0482-4eae-baf6-7abe955ded48	2024-12-24 11:21:07.255574+00	2024-12-24 11:21:07.255574+00	\N	11	req0011	441d6f69-d278-4450-97ea-de9737ce0f60	Wendy	Marilyn	Ross	wendy@example.com	wendy.ross@gmail.com	Female	Heterosexual	Wendy Ross	Amanda Thompson	Marketing	VP Marketing	USA	Illinois	Alexmouth	Active	Full time	USA	USD	t	121289.14	3625.74	14104.10	5472.28	2023-06-29	\N
+a84d49e7-7aa0-426d-b670-d32c52669fd1	2024-12-24 11:21:07.26383+00	2024-12-24 11:21:07.26383+00	\N	12	req0012	441d6f69-d278-4450-97ea-de9737ce0f60	Courtney	Shelby	Becker	courtney@example.com	courtney.becker@gmail.com	Female	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Demand Generation	USA	Illinois	Greerborough	Inactive	Full time	USA	USD	t	190295.08	6640.68	91819.94	49815.18	2021-05-20	2022-03-18
+8137ca52-e600-4edd-bf37-7d748dc45cd2	2024-12-24 11:21:07.271087+00	2024-12-24 11:21:07.271087+00	\N	13	req0013	441d6f69-d278-4450-97ea-de9737ce0f60	Brandi	Cody	Mason	brandi@example.com	brandi.mason@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Content Marketing and Communications	USA	Illinois	North Sophiaport	Active	Full time	USA	USD	t	60554.83	19459.73	10416.43	47051.48	2021-03-15	\N
+5492b5b3-27d6-4542-a6fb-4d44fee32342	2024-12-24 11:21:07.278692+00	2024-12-24 11:21:07.278692+00	\N	14	req0014	441d6f69-d278-4450-97ea-de9737ce0f60	Michael	Whitney	Rivers	michael@example.com	michael.rivers@gmail.com	Male	Heterosexual	Wendy Ross	Wendy Ross	Marketing	Director Growth Marketing	USA	Illinois	North Oliviafurt	Inactive	Advisor	USA	USD	t	151356.52	17415.02	84312.46	42077.88	2024-11-16	\N
+5308dde1-8330-43a8-8edc-b46754a40f20	2024-12-24 11:21:07.286937+00	2024-12-24 11:21:07.286937+00	\N	15	req0015	441d6f69-d278-4450-97ea-de9737ce0f60	Kevin	Todd	Riddle	kevin@example.com	kevin.riddle@gmail.com	Non-Binary	Gay/Lesbian	Wendy Ross	Courtney Becker	Marketing	Growth Marketing Analyst	USA	Illinois	Katherinemouth	Inactive	Full time	USA	USD	f	150452.68	4783.75	42284.27	38328.22	2024-12-13	\N
+4c05a5df-88d8-41dc-ba1a-166cab2c1de8	2024-12-24 11:21:07.295225+00	2024-12-24 11:21:07.295225+00	\N	16	req0016	441d6f69-d278-4450-97ea-de9737ce0f60	Beverly	Charles	Martinez	beverly@example.com	beverly.martinez@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Illinois	West Ronaldborough	Active	Consultant	USA	USD	f	81599.24	14312.08	3183.19	27400.67	2024-06-30	\N
+d0f39265-4cc7-4a7c-8cbe-ed7b0bd80592	2024-12-24 11:21:07.302102+00	2024-12-24 11:21:07.302102+00	\N	17	req0017	441d6f69-d278-4450-97ea-de9737ce0f60	Aaron	Jennifer	Jensen	aaron@example.com	aaron.jensen@gmail.com	Male	Heterosexual	Wendy Ross	Courtney Becker	Marketing	Marketing Automation Specialist	USA	Florida	East Davidtown	Inactive	Full time	USA	USD	f	69997.44	1212.78	64957.27	35183.60	2025-02-24	\N
+93e30e55-2c6b-4c9f-860f-937fa03e2b6e	2024-12-24 11:21:07.309791+00	2024-12-24 11:21:07.309791+00	\N	18	req0018	441d6f69-d278-4450-97ea-de9737ce0f60	Patricia	Christopher	Jackson	patricia@example.com	patricia.jackson@gmail.com	Female	Heterosexual	Wendy Ross	Brandi Mason	Marketing	Communications Specialist	USA	Texas	South Michellemouth	Inactive	Full time	USA	USD	f	99486.42	15437.37	5011.81	2052.14	2024-12-27	\N
+42017aef-3564-49db-b650-5c481d8130ab	2024-12-24 11:21:07.316691+00	2024-12-24 11:21:07.316691+00	\N	19	req0019	441d6f69-d278-4450-97ea-de9737ce0f60	Jason	Robert	Bell	jason@example.com	jason.bell@gmail.com	Male	Prefer not to say	Wendy Ross	Brandi Mason	Marketing	Social Media Strategist	USA	Texas	Robertston	Inactive	Full time	USA	USD	f	122016.94	11286.00	81559.53	887.91	2025-02-23	\N
+e20fa49d-8985-4f72-8b5f-6d15e564cdd8	2024-12-24 11:21:07.326242+00	2024-12-24 11:21:07.326242+00	\N	20	req0020	441d6f69-d278-4450-97ea-de9737ce0f60	Casey	Beth	Reyes	casey@example.com	casey.reyes@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	New York	Thomaschester	Active	Part time	USA	USD	f	123065.49	1384.09	79453.41	5123.04	2024-04-07	\N
+604f7982-9275-4aaa-974e-80e4ffd0a5a2	2024-12-24 11:21:07.332048+00	2024-12-24 11:21:07.332048+00	\N	21	req0021	441d6f69-d278-4450-97ea-de9737ce0f60	Holly	Dawn	Barker	holly@example.com	holly.barker@gmail.com	Female	Heterosexual	Wendy Ross	Michael Rivers	Marketing	SEO/SEM Specialist	USA	California	Markberg	Active	Full time	USA	USD	f	82645.56	1713.59	50509.60	38177.01	2022-01-17	\N
+13d1a787-41c6-49d7-b99b-a346dbb42c93	2024-12-24 11:21:07.339151+00	2024-12-24 11:21:07.339151+00	\N	22	req0022	441d6f69-d278-4450-97ea-de9737ce0f60	Aaron	John	Camacho	aaron@example.com	aaron.camacho@gmail.com	Non-Binary	Bisexual	Wendy Ross	Michael Rivers	Marketing	Performance Marketing Specialist 	USA	New York	Stephaniefort	Active	Full time	USA	USD	f	76566.61	3703.13	18644.84	38741.14	2020-12-01	\N
+0698a420-1e50-4614-a191-9fdefdd44c17	2024-12-24 11:21:07.347484+00	2024-12-24 11:21:07.347484+00	\N	23	req0023	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas	Theresa	Lucero	thomas@example.com	thomas.lucero@gmail.com	Male	Heterosexual	Thomas Lucero	Amanda Thompson	Product	VP Product Management	USA	California	Lake Caseyberg	Active	Full time	USA	USD	f	160118.93	1670.91	10010.12	3843.55	2024-01-08	\N
+5f6870a1-5dc4-442a-be89-352f37f8972b	2024-12-24 11:21:07.355244+00	2024-12-24 11:21:07.355244+00	\N	24	req0024	441d6f69-d278-4450-97ea-de9737ce0f60	Judy	Eric	Calderon	judy@example.com	judy.calderon@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Strategy	USA	Texas	Davidberg	Active	Full time	USA	USD	t	102867.77	15429.30	36086.76	27892.66	2023-12-19	\N
+005f2722-2595-4cc2-96fd-49a3ef9cf021	2024-12-24 11:21:07.362421+00	2024-12-24 11:21:07.362421+00	\N	25	req0025	441d6f69-d278-4450-97ea-de9737ce0f60	Alexa	Donna	Jones	alexa@example.com	alexa.jones@gmail.com	Female	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Development	USA	California	North Donaldmouth	Active	Full time	USA	USD	t	124448.00	11747.70	72964.79	22206.50	2023-05-31	\N
+d6c0e133-0b71-40c3-9885-bd74c6cca72e	2024-12-24 11:21:07.370402+00	2024-12-24 11:21:07.370402+00	\N	26	req0026	441d6f69-d278-4450-97ea-de9737ce0f60	Brian	Martha	Lambert	brian@example.com	brian.lambert@gmail.com	Male	Heterosexual	Thomas Lucero	Thomas Lucero	Product	Director Product Operations	USA	Florida	New Colinshire	Active	Full time	USA	USD	t	130917.32	11205.45	71904.39	27841.16	2022-01-24	2025-04-01
+fed4b7e1-9e09-4e3b-97d3-c732850503b9	2024-12-24 11:21:07.378671+00	2024-12-24 11:21:07.378671+00	\N	27	req0027	441d6f69-d278-4450-97ea-de9737ce0f60	Elizabeth	Michael	Davis	elizabeth@example.com	elizabeth.davis@gmail.com	Female	Prefer not to say	Thomas Lucero	Judy Calderon	Product	Product Strategist	USA	California	New Terrimouth	Active	Advisor	USA	USD	t	145576.38	16543.79	46812.53	19119.68	2022-05-29	\N
+4996671d-61d4-495e-a0c1-f26f0c645115	2024-12-24 11:21:07.386256+00	2024-12-24 11:21:07.386256+00	\N	28	req0028	441d6f69-d278-4450-97ea-de9737ce0f60	Kristen	Joseph	Christian	kristen@example.com	kristen.christian@gmail.com	Female	Heterosexual	Thomas Lucero	Judy Calderon	Product	Product Analyst	USA	Texas	Larryfurt	Inactive	Full time	USA	USD	f	146974.32	1878.80	5070.71	42337.52	2020-05-26	2023-04-02
+0e36e8f1-31dd-4fa5-a230-1bfbd857a183	2024-12-24 11:21:07.392755+00	2024-12-24 11:21:07.392755+00	\N	29	req0029	441d6f69-d278-4450-97ea-de9737ce0f60	Joseph	Sean	Bailey	joseph@example.com	joseph.bailey@gmail.com	Male	Heterosexual	Thomas Lucero	Judy Calderon	Product	Market Research Specialist	USA	Florida	East Shawn	Active	Full time	USA	USD	f	123775.85	11131.66	85179.06	3043.92	2023-12-24	2025-01-17
+e82a29a4-870c-418c-a667-758f947ab168	2024-12-24 11:21:07.400136+00	2024-12-24 11:21:07.400136+00	\N	30	req0030	441d6f69-d278-4450-97ea-de9737ce0f60	Kenneth	Mary	Fuentes	kenneth@example.com	kenneth.fuentes@gmail.com	Male	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Designer	USA	Illinois	East Ambermouth	Inactive	Full time	USA	USD	f	129914.92	13392.34	97894.79	3911.80	2021-09-23	2023-08-21
+488405d2-cf33-4650-9c42-c8dac8b399fd	2024-12-24 11:21:07.407212+00	2024-12-24 11:21:07.407212+00	\N	31	req0031	441d6f69-d278-4450-97ea-de9737ce0f60	Priscilla	Amber	Fernandez	priscilla@example.com	priscilla.fernandez@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Texas	Morrisfort	Inactive	Full time	USA	USD	f	157054.76	11361.09	76080.76	35235.07	2025-01-10	\N
+beb3716c-0d00-4150-bf34-c4ba105acfaa	2024-12-24 11:21:07.413461+00	2024-12-24 11:21:07.413461+00	\N	32	req0032	441d6f69-d278-4450-97ea-de9737ce0f60	Shannon	Stacey	Hill	shannon@example.com	shannon.hill@gmail.com	Agender	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Development Engineer	USA	Illinois	Port Teresa	Active	Full time	USA	USD	f	115989.78	5395.90	67064.39	27632.72	2024-11-06	\N
+f28af5b6-2c17-4a97-86eb-9608427ae1fc	2024-12-24 11:21:07.420457+00	2024-12-24 11:21:07.420457+00	\N	33	req0033	441d6f69-d278-4450-97ea-de9737ce0f60	Christina	Stacy	Villegas	christina@example.com	christina.villegas@gmail.com	Female	Heterosexual	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Florida	Port Kim	Active	Full time	USA	USD	f	174614.40	16140.65	40375.02	47765.30	2024-05-17	\N
+e1f5456a-5360-4bd6-b7d7-97b6bd6adf59	2024-12-24 11:21:07.426399+00	2024-12-24 11:21:07.426399+00	\N	34	req0034	441d6f69-d278-4450-97ea-de9737ce0f60	Michelle	Christopher	Lang	michelle@example.com	michelle.lang@gmail.com	Female	Gay/Lesbian	Thomas Lucero	Alexa Jones	Product	Product Owner	USA	Texas	Melaniebury	Active	Full time	USA	USD	f	194945.60	16265.97	80258.20	33091.22	2023-10-25	\N
+168e7a5b-8b2a-4da4-9fc8-5ae88b3febf8	2024-12-24 11:21:07.433991+00	2024-12-24 11:21:07.433991+00	\N	35	req0035	441d6f69-d278-4450-97ea-de9737ce0f60	Helen	Lori	Smith	helen@example.com	helen.smith@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Analyst	USA	Florida	Adamsstad	Active	Full time	USA	USD	f	178436.28	7786.17	8929.71	39039.26	2021-01-24	\N
+e449aa2b-1cd9-43bc-9e9d-b16774da4385	2024-12-24 11:21:07.442813+00	2024-12-24 11:21:07.442813+00	\N	36	req0036	441d6f69-d278-4450-97ea-de9737ce0f60	Samuel	Bob	Cross	samuel@example.com	samuel.cross@gmail.com	Male	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Texas	Castrofurt	Inactive	Full time	USA	USD	f	85174.23	1612.71	22926.90	43368.44	2024-12-31	\N
+1dbf60dc-84fb-44e3-bbdf-10a06bbe9387	2024-12-24 11:21:07.448456+00	2024-12-24 11:21:07.448456+00	\N	37	req0037	441d6f69-d278-4450-97ea-de9737ce0f60	Alyssa	Roberta	Brown	alyssa@example.com	alyssa.brown@gmail.com	Female	Heterosexual	Thomas Lucero	Brian Lambert	Product	Product Operations Specialist 	USA	Illinois	New Austin	Inactive	Full time	USA	USD	f	108715.59	1498.80	65060.29	16343.93	2025-03-14	\N
+00f4ebe6-ec54-41a7-814e-cdc2632de95e	2024-12-24 11:21:07.455629+00	2024-12-24 11:21:07.455629+00	\N	38	req0038	441d6f69-d278-4450-97ea-de9737ce0f60	James	Jessica	Diaz	james@example.com	james.diaz@gmail.com	Male	Prefer not to say	Amanda Thompson	Amanda Thompson	Sales	VP Sales	USA	California	North Melissa	Active	Full time	USA	USD	t	129366.94	7186.53	74227.18	3137.60	2021-07-27	\N
+d6fc1ec1-f1cb-4561-949b-8c6c0b9ca28a	2024-12-24 11:21:07.46423+00	2024-12-24 11:21:07.46423+00	\N	39	req0039	441d6f69-d278-4450-97ea-de9737ce0f60	Adam	Katherine	Sanchez	adam@example.com	adam.sanchez@gmail.com	Prefer not to say	Heterosexual	James Diaz	James Diaz	Sales	Director US Sales	USA	Illinois	West Leahbury	Active	Full time	USA	USD	t	177091.16	9494.85	75870.26	44483.98	2021-09-18	\N
+edf29991-94d0-4fca-8210-0d268e9d9b4b	2024-12-24 11:21:07.471226+00	2024-12-24 11:21:07.471226+00	\N	40	req0040	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas	Adrian	Hunter	thomas@example.com	thomas.hunter@gmail.com	Male	Heterosexual	James Diaz	James Diaz	Sales	Director EMEA Sales	USA	California	Catherinetown	Active	Full time	USA	USD	t	76892.68	17421.84	21580.01	35595.41	2022-11-29	\N
+f8beede9-6991-474b-8078-3e4e2270a9c0	2024-12-24 11:21:07.479272+00	2024-12-24 11:21:07.479272+00	\N	41	req0041	441d6f69-d278-4450-97ea-de9737ce0f60	Sara	Shaun	Gordon	sara@example.com	sara.gordon@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Sales Operations	USA	Florida	Michaelberg	Active	Full time	USA	USD	t	149784.29	12490.70	4348.28	17679.71	2023-12-28	\N
+901297b0-4bf6-4aa5-a51e-0c8319494dfa	2024-12-24 11:21:07.486235+00	2024-12-24 11:21:07.486235+00	\N	42	req0042	441d6f69-d278-4450-97ea-de9737ce0f60	Erin	Nicholas	Brandt	erin@example.com	erin.brandt@gmail.com	Female	Heterosexual	James Diaz	James Diaz	Sales	Director Business Development	USA	Texas	Port Connor	Active	Full time	USA	USD	t	57398.91	14677.72	54000.82	30173.49	2020-07-31	\N
+88700efd-522e-4597-bd1a-43aeb409e363	2024-12-24 11:21:07.494192+00	2024-12-24 11:21:07.494192+00	\N	43	req0043	441d6f69-d278-4450-97ea-de9737ce0f60	Jackson	Jacob	Anderson	jackson@example.com	jackson.anderson@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	California	North Josemouth	Inactive	Full time	USA	USD	f	129037.64	12645.61	94294.46	37663.26	2025-03-23	\N
+110a772f-ff13-47a7-a473-fb7a5dd978ac	2024-12-24 11:21:07.50042+00	2024-12-24 11:21:07.50042+00	\N	44	req0044	441d6f69-d278-4450-97ea-de9737ce0f60	Tamara	Brandi	Reyes	tamara@example.com	tamara.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Port Andre	Active	Full time	USA	USD	f	171629.15	8588.79	65235.08	17617.96	2021-07-15	\N
+2d33f903-a025-46d2-b072-e35ca6d17388	2024-12-24 11:21:07.506251+00	2024-12-24 11:21:07.506251+00	\N	45	req0045	441d6f69-d278-4450-97ea-de9737ce0f60	Spencer	Nicholas	Wells	spencer@example.com	spencer.wells@gmail.com	Male	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Florida	Andrewtown	Active	Full time	USA	USD	f	180369.42	19123.39	45803.71	46601.50	2022-05-31	\N
+ac2aada1-b85d-4b46-ac3e-55019848ee4d	2024-12-24 11:21:07.512122+00	2024-12-24 11:21:07.512122+00	\N	46	req0046	441d6f69-d278-4450-97ea-de9737ce0f60	Heather	Lynn	Reyes	heather@example.com	heather.reyes@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	Texas	Lake Alan	Inactive	Full time	USA	USD	f	97891.81	17609.51	88700.63	13904.51	2025-03-13	\N
+08227530-7ae9-4341-9f8c-61ceeb7991d3	2024-12-24 11:21:07.517962+00	2024-12-24 11:21:07.517962+00	\N	47	req0047	441d6f69-d278-4450-97ea-de9737ce0f60	Kathryn	Bianca	Bell	kathryn@example.com	kathryn.bell@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Regional Sales Representative	USA	New York	South Brenda	Active	Full time	USA	USD	f	172662.07	17437.03	2371.35	3203.56	2020-05-26	\N
+8a12649b-08e3-4be3-a046-beacfb75b9fd	2024-12-24 11:21:07.524532+00	2024-12-24 11:21:07.524532+00	\N	48	req0048	441d6f69-d278-4450-97ea-de9737ce0f60	Cynthia	David	Powers	cynthia@example.com	cynthia.powers@gmail.com	Agender	Prefer not to say	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	New York	Lake Davidside	Active	Full time	USA	USD	f	71138.73	15169.09	51671.51	33168.10	2022-09-17	\N
+4939b8a9-c65f-48bf-bb24-084c05c67945	2024-12-24 11:21:07.530357+00	2024-12-24 11:21:07.530357+00	\N	49	req0049	441d6f69-d278-4450-97ea-de9737ce0f60	Jacqueline	Jaime	Burton	jacqueline@example.com	jacqueline.burton@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Client Success Specialist	USA	California	West Keithchester	Active	Consultant	USA	USD	f	131918.40	1346.68	98193.14	1477.48	2021-12-07	\N
+1b9a034c-9150-4fac-b4ad-b81b85c86327	2024-12-24 11:21:07.536907+00	2024-12-24 11:21:07.536907+00	\N	50	req0050	441d6f69-d278-4450-97ea-de9737ce0f60	Laurie	Mary	Shaffer	laurie@example.com	laurie.shaffer@gmail.com	Female	Heterosexual	James Diaz	Adam Sanchez	Sales	Sales Development Representative	USA	Florida	Rebeccahaven	Active	Full time	USA	USD	f	104829.91	11805.78	9927.87	7664.67	2024-09-01	\N
+fccd6636-c603-41fe-b7ce-5297eecad48c	2024-12-24 11:21:07.543691+00	2024-12-24 11:21:07.543691+00	\N	51	req0051	441d6f69-d278-4450-97ea-de9737ce0f60	Courtney	Christopher	Hughes	courtney@example.com	courtney.hughes@gmail.com	Female	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	New Kimberly	Active	Full time	USA	USD	f	73008.23	10025.47	26751.96	25703.28	2023-10-07	\N
+9178f289-d3a6-4be1-8a02-93ffe1f4bc96	2024-12-24 11:21:07.549201+00	2024-12-24 11:21:07.549201+00	\N	52	req0052	441d6f69-d278-4450-97ea-de9737ce0f60	David	Barbara	Hernandez	david@example.com	david.hernandez@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Texas	North Catherineside	Active	Full time	USA	USD	f	137260.39	18774.63	44244.83	9442.10	2024-03-31	\N
+bb69107b-80e7-40ce-a657-f1690d747f1f	2024-12-24 11:21:07.55563+00	2024-12-24 11:21:07.55563+00	\N	53	req0053	441d6f69-d278-4450-97ea-de9737ce0f60	Edward	Peter	Hobbs	edward@example.com	edward.hobbs@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	California	Natashamouth	Active	Full time	USA	USD	f	96629.66	18978.63	62114.95	25042.96	2023-02-22	\N
+0cfe8076-7a05-444f-b0da-2bad35f32d2f	2024-12-24 11:21:07.561194+00	2024-12-24 11:21:07.561194+00	\N	54	req0054	441d6f69-d278-4450-97ea-de9737ce0f60	Keith	Michael	Wilson	keith@example.com	keith.wilson@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Regional Sales Representative	USA	Florida	New Sean	Active	Full time	USA	USD	f	107574.51	3043.08	90404.82	7528.01	2024-02-13	2024-11-21
+c83422b2-e67d-4363-a963-830e49111a08	2024-12-24 11:21:07.566588+00	2024-12-24 11:21:07.566588+00	\N	55	req0055	441d6f69-d278-4450-97ea-de9737ce0f60	Stephen	Elizabeth	Fuller	stephen@example.com	stephen.fuller@gmail.com	Male	Heterosexual	James Diaz	Thomas Hunter	Sales	Client Success Specialist	USA	Texas	Kristenside	Inactive	Full time	USA	USD	f	100560.80	13021.00	9540.87	46141.25	2022-10-20	2024-07-25
+5ab435b8-1b01-4fb7-b800-e88b38633cd3	2024-12-24 11:21:07.573951+00	2024-12-24 11:21:07.573951+00	\N	56	req0056	441d6f69-d278-4450-97ea-de9737ce0f60	Joel	Ashley	George	joel@example.com	joel.george@gmail.com	Non-Binary	Heterosexual	James Diaz	Thomas Hunter	Sales	Sales Development Representative	USA	Florida	Emilymouth	Inactive	Full time	USA	USD	f	67428.38	18958.33	23453.83	33320.52	2025-02-22	\N
+24f8f35a-5999-4a84-833c-8651ff4ffe10	2024-12-24 11:21:07.582401+00	2024-12-24 11:21:07.582401+00	\N	57	req0057	441d6f69-d278-4450-97ea-de9737ce0f60	Nancy	Amber	Mendoza	nancy@example.com	nancy.mendoza@gmail.com	Female	Gay/Lesbian	James Diaz	Sara Gordon	Sales	CRM Administrator	USA	Illinois	South Matthew	Active	Full time	USA	USD	f	109475.93	13682.64	38398.73	7913.90	2022-03-04	\N
+aad6be81-d08b-4e8f-848b-dfbd16dadbf4	2024-12-24 11:21:07.589301+00	2024-12-24 11:21:07.589301+00	\N	58	req0058	441d6f69-d278-4450-97ea-de9737ce0f60	Stephen	Jessica	Mcintyre	stephen@example.com	stephen.mcintyre@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	New York	Port Julie	Inactive	Full time	USA	USD	f	149400.69	1164.36	2259.48	26845.92	2025-01-06	\N
+0abb28a9-2225-4cf9-93c1-407157440100	2024-12-24 11:21:07.594733+00	2024-12-24 11:21:07.594733+00	\N	59	req0059	441d6f69-d278-4450-97ea-de9737ce0f60	Lindsey	Amber	White	lindsey@example.com	lindsey.white@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Enablement Specialist	USA	Florida	Port Michael	Active	Part time	USA	USD	f	88120.33	13699.17	33627.69	5818.88	2021-04-17	\N
+209acc3e-ffc0-4af6-b1a5-a22e7f91b2ed	2024-12-24 11:21:07.601547+00	2024-12-24 11:21:07.601547+00	\N	60	req0060	441d6f69-d278-4450-97ea-de9737ce0f60	Jennifer	Erica	Bryant	jennifer@example.com	jennifer.bryant@gmail.com	Female	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Illinois	West Lisa	Active	Full time	USA	USD	f	147411.73	15234.98	35513.36	45138.05	2020-12-07	\N
+f1d6d174-8511-495f-81b2-ef80664b3760	2024-12-24 11:21:07.607303+00	2024-12-24 11:21:07.607303+00	\N	61	req0061	441d6f69-d278-4450-97ea-de9737ce0f60	Jack	Michael	Davis	jack@example.com	jack.davis@gmail.com	Male	Heterosexual	James Diaz	Sara Gordon	Sales	Sales Operations Analyst	USA	Texas	Martinezmouth	Inactive	Full time	USA	USD	f	166538.28	18158.37	74738.17	35810.02	2025-03-23	\N
+230d75c1-2104-43f8-a385-9bc85110ae0a	2024-12-24 11:21:07.619635+00	2024-12-24 11:21:07.619635+00	\N	62	req0062	441d6f69-d278-4450-97ea-de9737ce0f60	Veronica	Anthony	Stewart	veronica@example.com	veronica.stewart@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Business Development Representative	USA	Texas	Vasquezshire	Active	Advisor	USA	USD	f	118377.27	1771.48	18944.50	19361.34	2020-11-09	\N
+2fea48ec-d486-4f77-ab69-cef1fccbee46	2024-12-24 11:21:07.630768+00	2024-12-24 11:21:07.630768+00	\N	63	req0063	441d6f69-d278-4450-97ea-de9737ce0f60	Teresa	Jeremiah	Kirk	teresa@example.com	teresa.kirk@gmail.com	Female	Heterosexual	James Diaz	Erin Brandt	Sales	Strategic Partnerships Associate	USA	New York	Henryview	Active	Full time	USA	USD	f	148795.56	11689.93	4074.78	47941.31	2024-08-19	\N
+eb1264d1-cd15-482d-8848-73310bb6acc4	2024-12-24 11:21:07.637547+00	2024-12-24 11:21:07.637547+00	\N	64	req0064	441d6f69-d278-4450-97ea-de9737ce0f60	Tiffany	Alexander	Rodriguez	tiffany@example.com	tiffany.rodriguez@gmail.com	Female	Prefer not to say	Amanda Thompson	Amanda Thompson	Engineering	VP Engineering	USA	Texas	Lloydstad	Active	Full time	USA	USD	t	103873.92	15862.67	19070.63	28666.85	2021-06-26	\N
+f08ed92f-beb8-4b2f-8c9c-d5318d6df43a	2024-12-24 11:21:07.64599+00	2024-12-24 11:21:07.64599+00	\N	65	req0065	441d6f69-d278-4450-97ea-de9737ce0f60	Jason	Rebecca	Brady	jason@example.com	jason.brady@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Software	Director Software Engineering	USA	Florida	Port Rachel	Active	Full time	USA	USD	t	138545.51	16875.58	21120.77	35803.67	2024-03-11	2025-03-24
+d8346417-c42e-4778-bc4e-dedfa937df86	2024-12-24 11:21:07.652491+00	2024-12-24 11:21:07.652491+00	\N	66	req0066	441d6f69-d278-4450-97ea-de9737ce0f60	Tonya	David	Buckley	tonya@example.com	tonya.buckley@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tiffany Rodriguez	Engineering:Testing	Director QA	USA	California	East Amyview	Active	Full time	USA	USD	t	187274.74	6747.52	94741.29	17922.20	2023-03-07	\N
+84241212-338a-4a20-a770-0a0312738197	2024-12-24 11:21:07.660088+00	2024-12-24 11:21:07.660088+00	\N	67	req0067	441d6f69-d278-4450-97ea-de9737ce0f60	Gregory	Christopher	Long	gregory@example.com	gregory.long@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Software Development Manager	USA	New York	Laurenberg	Active	Full time	USA	USD	t	159947.22	17436.08	43944.92	5968.15	2024-01-01	\N
+45a8eda2-167a-49eb-b7d9-ab1772dfb3d8	2024-12-24 11:21:07.666581+00	2024-12-24 11:21:07.666581+00	\N	68	req0068	441d6f69-d278-4450-97ea-de9737ce0f60	Christian	Clinton	Shaffer	christian@example.com	christian.shaffer@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	DevOps Manager	USA	California	Port Crystal	Active	Full time	USA	USD	t	130033.77	15778.66	98522.78	20817.13	2024-03-29	\N
+83ce1699-6bc6-4815-940e-adde554f0cad	2024-12-24 11:21:07.673376+00	2024-12-24 11:21:07.673376+00	\N	69	req0069	441d6f69-d278-4450-97ea-de9737ce0f60	Richard	Brian	Hubbard	richard@example.com	richard.hubbard@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Jason Brady	Engineering:Software	Technical Architecture Manager	USA	Florida	North Lynntown	Active	Full time	USA	USD	t	98308.66	18899.44	1400.17	5795.68	2022-03-29	\N
+d147b73e-e64b-4b27-935f-474ddb5d8dc5	2024-12-24 11:21:07.681131+00	2024-12-24 11:21:07.681131+00	\N	70	req0070	441d6f69-d278-4450-97ea-de9737ce0f60	Diana	Sue	Osborne	diana@example.com	diana.osborne@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	QA Automation Manager	USA	Florida	East Christinaview	Inactive	Full time	USA	USD	t	183201.85	7205.10	18301.35	18888.71	2021-03-14	2024-06-19
+afb9e1b1-3a1a-4021-b489-2a502727dcd4	2024-12-24 11:21:07.68904+00	2024-12-24 11:21:07.68904+00	\N	71	req0071	441d6f69-d278-4450-97ea-de9737ce0f60	Ashley	Brittany	Walton	ashley@example.com	ashley.walton@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Tonya Buckley	Engineering:Testing	Manual Testing Manager	USA	Florida	West Christopher	Active	Full time	USA	USD	t	111071.84	15299.11	50600.80	1467.96	2023-03-09	\N
+bddd4dbd-38a9-40bd-a741-7217aee16ecf	2024-12-24 11:21:07.697137+00	2024-12-24 11:21:07.697137+00	\N	72	req0072	441d6f69-d278-4450-97ea-de9737ce0f60	Linda	Matthew	Smith	linda@example.com	linda.smith@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Stephaniestad	Active	Consultant	USA	USD	f	74408.10	18937.40	5498.61	23390.53	2022-06-22	2025-02-24
+15d2fc2a-6aff-472a-b5b6-52eea9002cf7	2024-12-24 11:21:07.701522+00	2024-12-24 11:21:07.701522+00	\N	73	req0073	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas	Joseph	Jenkins	thomas@example.com	thomas.jenkins@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Texas	South Matthew	Active	Full time	USA	USD	f	160022.52	9940.24	72074.31	22514.67	2023-10-10	\N
+ea76be56-726a-4dd9-b5ff-f5b77fe8d35e	2024-12-24 11:21:07.707481+00	2024-12-24 11:21:07.707481+00	\N	74	req0074	441d6f69-d278-4450-97ea-de9737ce0f60	Arthur	Joshua	Taylor	arthur@example.com	arthur.taylor@gmail.com	Male	Prefer not to say	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Davidstad	Active	Full time	USA	USD	f	73651.10	4063.69	57879.47	15339.53	2022-09-27	\N
+5818e33e-0c78-4a7b-871a-9db7693d983f	2024-12-24 11:21:07.713231+00	2024-12-24 11:21:07.713231+00	\N	75	req0075	441d6f69-d278-4450-97ea-de9737ce0f60	Michael	Charles	Stewart	michael@example.com	michael.stewart@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	Illinois	Port Patriciaview	Inactive	Full time	USA	USD	f	161529.40	9746.59	32766.29	20292.64	2025-04-21	\N
+9aa689b0-451a-471d-87c7-49652b62aa75	2024-12-24 11:21:07.718699+00	2024-12-24 11:21:07.718699+00	\N	76	req0076	441d6f69-d278-4450-97ea-de9737ce0f60	Deborah	Daniel	Moss	deborah@example.com	deborah.moss@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	California	Howardton	Inactive	Full time	USA	USD	f	107724.71	8439.00	6142.60	19005.59	2020-10-10	2022-11-24
+6c6492ce-68c6-4d76-b69f-61dc0252b47a	2024-12-24 11:21:07.723843+00	2024-12-24 11:21:07.723843+00	\N	77	req0077	441d6f69-d278-4450-97ea-de9737ce0f60	Paul	Paul	Welch	paul@example.com	paul.welch@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Full-Stack Developer	USA	New York	Terrellview	Inactive	Part time	USA	USD	f	66341.10	14411.44	56327.59	8342.86	2025-01-10	\N
+e7c3e680-b93e-4f7a-b916-6edd0fdab89f	2024-12-24 11:21:07.729753+00	2024-12-24 11:21:07.729753+00	\N	78	req0078	441d6f69-d278-4450-97ea-de9737ce0f60	Heather	Kimberly	Moore	heather@example.com	heather.moore@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	California	Nunezland	Inactive	Full time	USA	USD	f	170102.10	16465.09	34060.07	38899.13	2020-03-09	2024-10-12
+318a2e62-a2d0-4da1-81ec-eb803212e7c6	2024-12-24 11:21:07.736927+00	2024-12-24 11:21:07.736927+00	\N	79	req0079	441d6f69-d278-4450-97ea-de9737ce0f60	Alexander	Steven	White	alexander@example.com	alexander.white@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	New Richardburgh	Inactive	Full time	USA	USD	f	196229.50	13968.79	75039.08	14205.78	2025-04-25	\N
+997c1f3f-965b-4935-bbdd-b1905d6c05e7	2024-12-24 11:21:07.743533+00	2024-12-24 11:21:07.743533+00	\N	80	req0080	441d6f69-d278-4450-97ea-de9737ce0f60	Brian	Brent	King	brian@example.com	brian.king@gmail.com	Agender	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Texas	Barajasside	Active	Full time	USA	USD	f	182811.01	2883.33	27241.99	11444.85	2021-06-11	\N
+bb4f896e-430a-461d-8fa4-e5312fa36ea4	2024-12-24 11:21:07.749072+00	2024-12-24 11:21:07.749072+00	\N	81	req0081	441d6f69-d278-4450-97ea-de9737ce0f60	Gregory	Barbara	Thomas	gregory@example.com	gregory.thomas@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Back-End Developer	USA	Florida	Adamsmouth	Active	Full time	USA	USD	f	150738.03	12021.36	59860.97	13488.28	2024-06-18	\N
+4beb197f-5669-47c3-a94a-edd47d5e6a98	2024-12-24 11:21:07.755819+00	2024-12-24 11:21:07.755819+00	\N	82	req0082	441d6f69-d278-4450-97ea-de9737ce0f60	Jeremy	Natalie	Ellis	jeremy@example.com	jeremy.ellis@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	Illinois	Lake Ronaldshire	Inactive	Full time	USA	USD	f	196609.81	9406.94	6050.67	30517.26	2024-12-04	\N
+94e19b99-af5b-4aa5-a95b-3a6a0a4d07ea	2024-12-24 11:21:07.761396+00	2024-12-24 11:21:07.761396+00	\N	83	req0083	441d6f69-d278-4450-97ea-de9737ce0f60	Marissa	Christine	Johnson	marissa@example.com	marissa.johnson@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Front-End Developer	USA	New York	Nathanielview	Active	Part time	USA	USD	f	106537.53	18870.28	21914.45	45550.41	2020-11-01	\N
+783d5966-e8f9-4d1f-ae7f-724012033aa8	2024-12-24 11:21:07.770057+00	2024-12-24 11:21:07.770057+00	\N	84	req0084	441d6f69-d278-4450-97ea-de9737ce0f60	Eric	Stephen	Woods	eric@example.com	eric.woods@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Mooreland	Inactive	Full time	USA	USD	f	172850.05	7587.79	68920.75	33581.74	2023-02-27	2024-05-04
+f480c4a2-2cea-41f2-85d5-a36a27e941ed	2024-12-24 11:21:07.776957+00	2024-12-24 11:21:07.776957+00	\N	85	req0085	441d6f69-d278-4450-97ea-de9737ce0f60	Paula	Monica	Moore	paula@example.com	paula.moore@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Gregory Long	Engineering:Software	Mobile Developer	USA	Illinois	Elizabethfort	Active	Full time	USA	USD	f	133957.41	9969.64	57809.79	841.08	2021-05-12	\N
+0106b08a-5c10-470a-a056-f060f5229501	2024-12-24 11:21:07.785684+00	2024-12-24 11:21:07.785684+00	\N	86	req0086	441d6f69-d278-4450-97ea-de9737ce0f60	Melinda	Barbara	Gillespie	melinda@example.com	melinda.gillespie@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	Texas	North Joshua	Active	Full time	USA	USD	f	195806.40	19882.79	80670.07	15166.83	2024-06-20	\N
+d1d8f7d1-2171-4dcb-a953-127c2c3d99c0	2024-12-24 11:21:07.79091+00	2024-12-24 11:21:07.79091+00	\N	87	req0087	441d6f69-d278-4450-97ea-de9737ce0f60	Evelyn	Nicholas	Duncan	evelyn@example.com	evelyn.duncan@gmail.com	Non-Binary	Prefer not to say	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	DevOps Engineer	USA	New York	West Joshua	Inactive	Full time	USA	USD	f	114133.42	9532.10	23725.14	32370.76	2024-12-20	\N
+fead4d0d-4b75-49d6-8de9-638cd7061489	2024-12-24 11:21:07.797264+00	2024-12-24 11:21:07.797264+00	\N	88	req0088	441d6f69-d278-4450-97ea-de9737ce0f60	Nicholas	Robert	Myers	nicholas@example.com	nicholas.myers@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Christian Shaffer	Engineering:Software	Site Reliability Engineer	USA	California	North Stacey	Active	Full time	USA	USD	f	97597.74	2036.08	92221.36	11614.11	2023-12-01	\N
+b017854f-30e5-4c67-a9e5-1d918babb956	2024-12-24 11:21:07.806+00	2024-12-24 11:21:07.806+00	\N	89	req0089	441d6f69-d278-4450-97ea-de9737ce0f60	James	Melvin	Campbell	james@example.com	james.campbell@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	California	Calhounfurt	Active	Advisor	USA	USD	f	156242.91	4727.45	49660.58	39563.72	2021-04-12	\N
+6c35d957-0422-48bc-9fb9-77b03aa6ffac	2024-12-24 11:21:07.81149+00	2024-12-24 11:21:07.81149+00	\N	90	req0090	441d6f69-d278-4450-97ea-de9737ce0f60	Sarah	Elijah	Kennedy	sarah@example.com	sarah.kennedy@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Richard Hubbard	Engineering:Software	Software Architect	USA	Illinois	New Jeffrey	Active	Full time	USA	USD	f	53096.99	5122.33	34908.12	15363.82	2022-02-01	2025-02-09
+4e2b260e-ca92-4c23-b680-4b5657d29d8a	2024-12-24 11:21:07.819064+00	2024-12-24 11:21:07.819064+00	\N	91	req0091	441d6f69-d278-4450-97ea-de9737ce0f60	Matthew	Lance	Wood	matthew@example.com	matthew.wood@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Test Automation Specialist	USA	Illinois	East Alejandraberg	Inactive	Full time	USA	USD	f	115527.50	6330.81	37487.86	8774.44	2023-04-28	2024-07-31
+cf6a77c4-97a3-44b1-9813-82dffda3cb1c	2024-12-24 11:21:07.8254+00	2024-12-24 11:21:07.8254+00	\N	92	req0092	441d6f69-d278-4450-97ea-de9737ce0f60	Kim	Lindsey	Edwards	kim@example.com	kim.edwards@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Mendozaville	Active	Full time	USA	USD	f	157466.80	9143.79	95983.33	21637.13	2022-07-02	2025-03-03
+907f3cbc-0c59-48f2-9be4-a5e4d20a260e	2024-12-24 11:21:07.830896+00	2024-12-24 11:21:07.830896+00	\N	93	req0093	441d6f69-d278-4450-97ea-de9737ce0f60	David	Chris	Hickman	david@example.com	david.hickman@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Texas	Jessicashire	Inactive	Full time	USA	USD	f	117728.78	4411.88	67144.46	49711.06	2021-07-11	2021-12-08
+c88ff7dc-f4f2-4193-ab9b-1962e55494cb	2024-12-24 11:21:07.836451+00	2024-12-24 11:21:07.836451+00	\N	94	req0094	441d6f69-d278-4450-97ea-de9737ce0f60	Lisa	Russell	Brown	lisa@example.com	lisa.brown@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	QA Automation Engineer	USA	Illinois	Brownport	Inactive	Full time	USA	USD	f	66451.22	18867.71	51503.65	40852.14	2021-12-11	2023-10-14
+e7392a14-8ac8-4fa9-bb68-265adf01c0c4	2024-12-24 11:21:07.843157+00	2024-12-24 11:21:07.843157+00	\N	95	req0095	441d6f69-d278-4450-97ea-de9737ce0f60	Stephanie	Lauren	Barnes	stephanie@example.com	stephanie.barnes@gmail.com	Female	Gay/Lesbian	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Texas	Cookbury	Inactive	Full time	USA	USD	f	80978.87	2973.25	4403.44	48610.63	2022-12-27	2024-05-26
+ef9d134a-77fb-493c-b56e-e82fe95eb9a1	2024-12-24 11:21:07.848715+00	2024-12-24 11:21:07.848715+00	\N	96	req0096	441d6f69-d278-4450-97ea-de9737ce0f60	Brandy	Tyler	Bishop	brandy@example.com	brandy.bishop@gmail.com	Prefer not to say	Heterosexual	Tiffany Rodriguez	Diana Osborne	Engineering:Testing	Automation Test Engineer 	USA	Florida	West Lauriemouth	Active	Full time	USA	USD	f	140714.12	2792.18	40470.30	41215.08	2024-06-10	2025-02-11
+f846550d-253c-4473-956e-ed4ff9a9face	2024-12-24 11:21:07.856916+00	2024-12-24 11:21:07.856916+00	\N	97	req0097	441d6f69-d278-4450-97ea-de9737ce0f60	David	Sherry	Ferguson	david@example.com	david.ferguson@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	Port Adrian	Inactive	Full time	USA	USD	f	182192.05	18451.36	1610.71	49552.03	2024-07-26	2024-09-30
+d5fc6f5a-793e-4d31-b49f-17a10b7e0451	2024-12-24 11:21:07.862085+00	2024-12-24 11:21:07.862085+00	\N	98	req0098	441d6f69-d278-4450-97ea-de9737ce0f60	Jonathan	Sherry	Ramos	jonathan@example.com	jonathan.ramos@gmail.com	Prefer not to say	Bisexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	QA Tester	USA	New York	West Pamela	Inactive	Full time	USA	USD	f	174948.14	13821.20	1767.68	24880.38	2022-03-18	2023-01-11
+ba78bc87-078d-4005-aa64-ef97ea3f6dd0	2024-12-24 11:21:07.869017+00	2024-12-24 11:21:07.869017+00	\N	99	req0099	441d6f69-d278-4450-97ea-de9737ce0f60	Jacob	Brian	Pham	jacob@example.com	jacob.pham@gmail.com	Male	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	Illinois	Rogersport	Inactive	Full time	USA	USD	f	197894.63	19998.59	3701.63	23922.47	2022-05-29	2023-09-11
+a9cca57f-8a52-4b86-a16b-52ca9a57ca5a	2024-12-24 11:21:07.87521+00	2024-12-24 11:21:07.87521+00	\N	100	req0100	441d6f69-d278-4450-97ea-de9737ce0f60	Kaitlin	Christopher	Collier	kaitlin@example.com	kaitlin.collier@gmail.com	Female	Heterosexual	Tiffany Rodriguez	Ashley Walton	Engineering:Testing	Manual Test Engineer 	USA	New York	Port Stephenburgh	Inactive	Part time	USA	USD	f	54187.30	18474.77	52191.03	29461.69	2023-07-12	2024-03-18
+\.
+
+
+--
+-- Data for Name: hr_collections; Type: TABLE DATA; Schema: public; Owner: hr-ms
+--
+
+COPY public.hr_collections (id, type, business_id, value) FROM stdin;
+cb18a947-f2de-4733-8bb9-4772a6a98e80	DEPARTMENT_HEAD	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Amanda Thompson
+70534f11-80cf-4dd1-b2ec-867613a7ee52	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	-
+6466e811-0598-4d63-bace-21f2ceb659a4	COUNTRY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	USA
+4b04c667-9888-46b8-8bb5-b57433d10bfc	STATE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Florida
+039d85bc-ab5e-4289-9ce7-655828c8e1d3	CURRENCY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	USD
+70a2fe06-6ea5-4023-b9f7-3adb09a0a5a7	COMPENSATION_REGION	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	USA
+92156d5e-7b44-45ac-8582-d9bd78e55e1b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Perezmouth
+4fb1f86a-a11a-428b-9dcd-ef8cf2368feb	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	CEO
+6459c1df-1bc2-4add-895e-1d2832dd5bde	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Amanda Thompson
+2a42b905-4fcc-4ad9-b131-44197a7d19f3	STATE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New York
+d113ef75-65b4-41b6-8ffa-4628ab9356c7	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Ashleystad
+357d3b2d-9e79-4426-b6ac-35d65b337150	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP HR
+fab60968-c369-4b4e-b2ac-76cba5d1bef7	STATE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Texas
+d22ac748-6d8e-40af-8558-fe3effedd4d6	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lewismouth
+aec93ebd-96c8-4520-94f8-f1124a395af4	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP Finance
+54cd832e-20bb-4daa-88d3-78a745cc4fec	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Teresa Buck
+bc91eceb-ad8f-40ab-95da-66e66ac4658e	STATE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Illinois
+2ed98c0e-ea96-4fff-baf2-e61fc355a932	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Suttonside
+1e5ab928-e773-4235-9a03-030e4541515d	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	HR Generalist
+e34a4c39-86d9-4b8d-a214-9358bf320056	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Caleb
+2a950658-e89b-407e-a6d8-4631d2cb0fb7	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Talent Acquisition Specialist
+99e2957a-c326-4fb0-9a7b-1678cea00144	STATE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	California
+9b7382b4-be18-4aea-aac4-53f1cacdd938	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tuckerberg
+7639d62f-3564-4c11-9183-a4adc1816f16	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	HR Business Partner
+4b5c45cb-9866-4181-98c9-e4fb4227a350	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tedd Morales
+8509caec-7119-41b6-9b12-27cf9385dda6	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Swansonville
+0c7ee9e4-6d2d-4877-8214-b570deb0ad3d	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Financial Analyst
+876a1834-987e-4769-85de-1689f502dd16	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Rhondachester
+ebbf4d62-e5ac-4a6d-bf4e-cf1699bcf25b	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Controller
+3929635b-5877-4747-a953-cd52906df1a2	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lake Jamesborough
+61a779de-07eb-447b-94fb-23355a6f4d02	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Brittanytown
+90fb4345-aecb-435e-bd45-8a8e558689f0	DEPARTMENT_HEAD	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Wendy Ross
+2333927c-6049-4f79-888d-918b35e20a2c	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Alexmouth
+dc9eb395-4768-4cb6-81f5-d50889791b63	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP Marketing
+b9630dc2-ff92-4bb2-ac9d-7e084d2800ab	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Wendy Ross
+d716a834-879f-4014-bb33-49e41dbf5644	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Greerborough
+4e6f8b54-87d7-4f29-8a74-df7e42dd821a	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Demand Generation
+64661b69-a345-4002-ac27-2228390cd9a2	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Sophiaport
+e8e393f7-bfc4-46f7-a0da-fe0201d97564	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Content Marketing and Communications
+2a3144b4-f795-474d-ba0f-0c06ef0ad667	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Oliviafurt
+e2bf6920-7df0-4cae-8406-7be1bf755c5f	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Growth Marketing
+07723b3c-e69b-4be0-b3da-4589cb3806ee	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Courtney Becker
+517aa8ee-5438-4f1f-bf32-8bb87aa2c045	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Katherinemouth
+03ba22f8-125c-4aa1-8ac4-3bfd9c8367ba	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Growth Marketing Analyst
+2c58fccf-e6e4-43a0-b7ca-13a246d06e05	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Ronaldborough
+a1203ead-80b3-46f8-b77f-021a2fac05a4	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Marketing Automation Specialist
+96c61012-0d2a-44d8-b24a-f112dca1778a	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Davidtown
+7d3c402a-f67c-4590-80a9-49c3a68f15b5	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brandi Mason
+6480b931-6655-4e7c-8614-6e69a5dfd297	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	South Michellemouth
+b59bcbb4-0215-40f3-b4c5-ef4285bf0003	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Communications Specialist
+848c794a-45ce-4be0-a376-b78034a8d7f7	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Robertston
+9808100a-9609-40ec-bb19-e0805fb2c754	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Social Media Strategist
+fedc5413-3e11-4980-a398-eb8d6dbbccbb	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Michael Rivers
+d0619edb-e5e5-4c95-91e9-e833f26c24d7	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomaschester
+264ec34d-167c-4887-94f1-e9d4d880271a	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	SEO/SEM Specialist
+68cc3b39-1e5b-409f-9050-f7bc67236acb	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Markberg
+ff554118-d30c-4816-985f-3ad5d872682e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Stephaniefort
+e4cacd4b-1271-4ab7-8d3c-73b316267f7e	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Performance Marketing Specialist 
+5335f309-1425-4697-9d48-77a18c7d6545	DEPARTMENT_HEAD	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas Lucero
+f182bf3f-8cd8-404d-9d5c-942855c748f6	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lake Caseyberg
+9841ffe7-74c3-4f19-86f7-c5f97422e277	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP Product Management
+c7a81b42-666f-4341-a40d-91c502460b12	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas Lucero
+fbf8d6e3-0881-4ccd-98c4-8af77fceaf8a	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Davidberg
+1b8faf50-edfa-47c1-94dc-125fe8458711	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Product Strategy
+66a8bdf7-4ddc-4591-842d-1146753d190d	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Donaldmouth
+d292eddd-d5ff-4cb8-9a72-2c59a0343d70	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Product Development
+c7b35e0a-5d53-45e2-93c4-a7f50b506c64	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Colinshire
+ed33838a-d169-421f-b0c0-0ec726869cd8	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Product Operations
+98a305e4-a7d7-4bcf-b87b-6d0069edfb57	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Judy Calderon
+a5467cab-9eac-48b2-b4e3-c7c6a093eda3	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Terrimouth
+b81bfcf8-5222-440b-a8ed-61251ed76220	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Strategist
+e7bf64b4-91a7-4f08-82e2-e0a339c4d164	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Larryfurt
+a5e14311-0c78-4a49-9233-34d4a0424c28	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Analyst
+e635c39e-58fe-41d5-b77a-146bb13dcfab	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Shawn
+ba92bf99-5ad7-456c-b8ef-fe88ff702ded	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Market Research Specialist
+201f2017-7e08-4250-807e-daa87c304534	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Alexa Jones
+e6c9446a-38a7-4750-be08-f5b35fcffc58	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Ambermouth
+ae4812d1-4b6c-47fe-96a5-f634f09b74d3	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Designer
+73159a78-575b-4b52-8358-4b14a0c879fc	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Morrisfort
+66839fae-785b-44d8-b820-0148341917d3	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Development Engineer
+6df895c0-300c-459f-ab0f-360c4858d0e3	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Teresa
+93cd19f5-c9bb-4e84-89ed-19d210dbcef5	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Kim
+645ec0e2-83c5-4d40-bfc6-6f4db228ab08	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Owner
+bb7bcefb-3d1f-45bc-b927-9b62062582bf	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Melaniebury
+bcb080f1-57c9-430b-bbc8-83afb12298a6	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brian Lambert
+dce584cf-80b6-49b7-9676-ee583d4e5f68	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Adamsstad
+2e90b912-7fe5-40fa-a2cd-03f096423b99	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Operations Analyst
+0b7f1ebe-f6c3-4ddf-b4d7-22d6d3766832	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Castrofurt
+e8723bee-da21-43e9-aafb-7492d481856c	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Product Operations Specialist 
+b8252518-4ff2-4280-be6b-a4de4311c612	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Austin
+a33dc32a-d214-4a6d-a034-af417f195bad	DEPARTMENT_HEAD	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	James Diaz
+608fe533-937a-4301-a8b0-08a12cf8efc4	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Melissa
+3598bc40-b536-44dd-98c6-93383fa7fdea	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP Sales
+e99b2206-a4ac-492a-9ebf-8aae978b6462	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	James Diaz
+dcd02340-8a2f-4316-8a70-cd4a50aa8467	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Leahbury
+a273ef5a-d02b-46fb-9996-986bdb38cb7a	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director US Sales
+bf2ba4ae-103b-417e-8b94-705fe722533e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Catherinetown
+6c6ac0ad-a7c5-47de-9893-65b055b61177	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director EMEA Sales
+bd868679-c284-4ff8-b428-f659c91e0d76	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Michaelberg
+9985f3e1-4684-4603-b719-764f27648642	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Sales Operations
+14f4df18-e3eb-427c-a80c-c65ab5036d66	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Connor
+776ee45b-90bb-4e9f-9d20-47e3e19873ed	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Business Development
+2231da20-d0d3-4039-a132-6685f23fb030	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Adam Sanchez
+08416732-061f-4ce3-810a-af4bb0347444	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Josemouth
+92c0fd61-fb91-4bea-a148-6a6b26e8dad9	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Regional Sales Representative
+ede605ed-bb32-455e-85f3-84d924e0449e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Andre
+8affa587-2f78-4a09-9bd9-c9fe73f7b31c	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Andrewtown
+2a98acef-52ad-4433-8423-995432afe14b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lake Alan
+ab6a7c34-82f8-4505-adbd-99a03c829391	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	South Brenda
+1f6b535e-8443-4ab4-9dbe-c6f412fcdd2f	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lake Davidside
+fc3368d3-c891-414b-9b4c-a658f5d79ca6	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Client Success Specialist
+abe84bd5-3dcb-4996-9710-cece55a7eb0e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Keithchester
+703189a7-efa9-48c8-a13f-e72e3f4f7c53	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Rebeccahaven
+9583fe01-4237-44db-9645-638c91effc62	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sales Development Representative
+9ec7702a-0f06-4c02-8178-5496f0f087cd	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Thomas Hunter
+f7e16fd6-f860-4812-abb1-735247385a76	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Kimberly
+a7e37c2c-f9df-423c-8fc1-18db1e75e8d1	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Catherineside
+3bc2f944-4fdf-4a76-b3fb-d14faadc98e9	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Natashamouth
+8db147fe-644a-4a61-b341-8944781d065e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Sean
+8237fb07-e1d0-4972-80f8-eff09c7cbecf	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Kristenside
+318c6b0a-b631-4e66-8b6b-f111e187a01e	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Emilymouth
+ebab9703-025e-46fa-b095-03f3b34b0464	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sara Gordon
+135efb87-37eb-44ad-bae2-d4faa317fe62	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	South Matthew
+bdc7b597-84f4-49c5-991c-a62f5b0addff	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	CRM Administrator
+d3834674-2d51-43b8-8ac1-f115b9b72346	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Julie
+174eedfb-0281-46b3-86f7-bef51bfa18e7	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sales Enablement Specialist
+86d26d57-e12c-44fc-8325-b0e871db0c6b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Michael
+d29f63a7-65ea-44b9-be58-610769e20f3b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Lisa
+f7769e24-96f7-4191-9c43-970c2dc9730c	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Sales Operations Analyst
+cb3be9f5-9512-4c76-919c-2702a2655a87	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Martinezmouth
+c2f3654b-1dad-4cff-9980-db7d95dff1ea	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Erin Brandt
+98430f10-aaaa-4899-b6b3-94deb2ceea79	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Vasquezshire
+ecec7d6b-af44-4668-8d36-cc72559e8c7c	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Business Development Representative
+7fa70fdb-f2e3-45b0-a0b5-b0a847228a80	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Henryview
+8f96a282-2018-4103-826c-bd39a0074658	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Strategic Partnerships Associate
+19703311-5146-4dd4-a5ed-1545c2430d54	DEPARTMENT_HEAD	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tiffany Rodriguez
+a83c2a23-a60f-4c09-b564-0e0399bed032	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lloydstad
+170b38ae-8dc8-4a42-ab78-b75f4d2a2532	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	VP Engineering
+639cefe3-ba59-4c87-8790-529761c4e58e	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tiffany Rodriguez
+74ddee8e-2ad6-4b60-8fbd-a8737fc79586	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Rachel
+1476e377-b6d7-4606-849d-f0d6a6063273	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director Software Engineering
+f2c7bb08-4264-492f-a8ed-861dd558969f	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Amyview
+ed0b6e1b-ad6b-4374-bc1e-05d88c7d16ea	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Director QA
+5075c339-184c-46e6-8137-d8b7d81ca481	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jason Brady
+1103ad4d-2a67-4d55-b006-2d039df61fc8	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Laurenberg
+bd242cf0-0c89-4b91-99d8-c31c1b0d5182	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Software Development Manager
+d90f4d3b-e58a-4983-a893-00defb768b05	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Crystal
+5b8f3bb2-5381-4739-96dd-7658445c73d5	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	DevOps Manager
+bf45c902-a396-41ff-9eae-d7f1ab9d2d54	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Lynntown
+e85c5ef8-6b16-4617-a222-4d0825b43124	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Technical Architecture Manager
+414c8543-0449-487c-b741-056fb4883680	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Tonya Buckley
+7823d673-d73e-4c7b-a598-9803af8d730b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Christinaview
+15bc5c17-67ad-4325-94cd-044bd066c3da	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	QA Automation Manager
+64408ff0-6c74-4460-b3a9-c4dc3ca7a732	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Christopher
+293c674f-4eb8-45c6-a3d8-130f214738fe	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Manual Testing Manager
+8f379599-ba76-4b1a-b5ea-18dd6e002ca3	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Gregory Long
+8806d90d-102f-4925-b696-e1f4060bea66	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Stephaniestad
+5e86b64c-4240-4c97-8b8c-58fe2ee71127	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Full-Stack Developer
+5d62d388-890e-4b88-9bfb-6f06165eeaf7	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Davidstad
+fcafbad5-14eb-4d50-9b4e-1cfac857eb2a	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Patriciaview
+5ea282f2-b95a-4458-bb7b-5162be73efc0	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Howardton
+8a95f6d6-b35a-454b-83b6-e475742e7c54	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Terrellview
+7e602eb1-15b0-4124-b479-3cd1c5f1d9bc	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Nunezland
+1eb0c572-3969-491c-ad6a-7055823d6f23	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Back-End Developer
+a3b663e7-dd22-4c78-9ecc-92dabea745ae	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Richardburgh
+eea2fe2e-c529-4bbc-8938-94ebbe2357a7	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Barajasside
+3892b903-df4d-4875-9c8b-4f3cda74b8bf	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Adamsmouth
+2234944c-f8cf-4b8f-b664-557d3bb3f3bc	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Lake Ronaldshire
+817d3850-7c3a-4328-8fe3-cc4d1c5b2523	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Front-End Developer
+8b5b3b05-5a04-4494-91f2-a83040985678	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Nathanielview
+eaeb1064-3cf2-4e8f-a64e-a9619d05ab5a	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Mooreland
+6698d9aa-573b-4cc9-a29e-35ed5c165c19	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Mobile Developer
+31589573-2316-48df-b8ea-20fe6fd8e528	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Elizabethfort
+d57744fd-9e58-4d35-9555-7ea81e580e20	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Christian Shaffer
+ab1c4215-5441-42c9-bff3-f15ee427419d	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Joshua
+bace8169-87b2-45eb-adc3-801e9172bd64	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	DevOps Engineer
+5856d3eb-b0fb-488f-b173-630e3cb71cb3	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Joshua
+296b1638-780c-4c90-a851-cf4777de91a3	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	North Stacey
+0aa88d9f-e122-414e-b8bb-5066f681ad23	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Site Reliability Engineer
+df84e644-983b-4033-9347-3e95bc169c53	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Richard Hubbard
+04ac5102-c923-4850-a108-b41b9def30b9	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Calhounfurt
+33f9bfd5-57ae-4c89-af8e-8fbf2e231863	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Software Architect
+82adf622-83d2-4286-b3b8-ddcd3f6e8060	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	New Jeffrey
+4ec331e0-6539-455d-b48d-b7c686cd31b9	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Diana Osborne
+edcb9ac8-4666-4ac0-abc5-d4104bb515de	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	East Alejandraberg
+e01b12df-27bf-4eeb-9f48-bf69552fa1dc	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Test Automation Specialist
+32af18d1-cdf5-4e98-b9b4-30f02b36d4e5	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Mendozaville
+f0cc34b1-3eab-4af0-b48b-fb4c06bd02ad	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	QA Automation Engineer
+006dd2fd-d0cd-4a23-9252-6edfcf854fcc	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Jessicashire
+fe1d9939-7c22-4845-9017-188ffce30a85	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Brownport
+1d48c3b2-5a1c-4e0c-9c24-353730d4bfe3	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Cookbury
+1fbb08dd-e2a5-4fd1-9814-d3f3f69cdd5d	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Automation Test Engineer 
+3fee9432-b958-4651-a72f-1cfc17e17112	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Lauriemouth
+1e33d2be-3815-4a33-be5c-b9cb5d289ab2	MANAGER	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Ashley Walton
+f4f5dfa1-c874-46a7-942c-318a70e1d981	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Adrian
+71f20db6-b751-4a9d-bf10-a40cc63d98d4	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	QA Tester
+e65a73e0-4c9b-47f5-ad39-4cf5e186a067	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	West Pamela
+c5926516-a4b3-43bd-8a48-42b54d28d013	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Rogersport
+de445b5f-dd6c-48c1-8bfb-087839b532f9	TITLE	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Manual Test Engineer 
+2659a911-b8d4-4a95-9949-afce2db1485b	CITY	c10e6cca-f250-4a7a-bba7-07c15b30dbe2	Port Stephenburgh
+ce5ae2e4-9531-49ef-bbf5-6ead365f6461	DEPARTMENT_HEAD	25561fe1-cc92-422a-af60-00ce518a62f0	Amanda Thompson
+732a7bbd-d944-4d1f-bf63-4b76df78e5ad	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	-
+1a57383f-5b2c-4fb8-991c-cb0f75f5bbc6	COUNTRY	25561fe1-cc92-422a-af60-00ce518a62f0	USA
+905fa3fc-03ec-412d-8314-cc204d93edc3	STATE	25561fe1-cc92-422a-af60-00ce518a62f0	Florida
+b7394765-bcf5-49d2-8241-f4ebe6c8198d	CURRENCY	25561fe1-cc92-422a-af60-00ce518a62f0	USD
+744acadf-436c-481d-8003-9fe4a1c3a672	COMPENSATION_REGION	25561fe1-cc92-422a-af60-00ce518a62f0	USA
+162c6973-4c44-4358-a07b-9d918922a5d5	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Perezmouth
+d840955a-d682-4797-abf7-3074b8f5f5a7	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	CEO
+404af217-2996-4499-a22b-4652383b86b7	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Amanda Thompson
+28e4cf72-8d9d-4de1-a07c-32c52c9faa76	STATE	25561fe1-cc92-422a-af60-00ce518a62f0	New York
+0b944140-c4a7-42ec-a7e9-fa51e316487b	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Ashleystad
+9d9e446b-ed14-4d3b-a403-02c2a2891a36	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP HR
+ed1e7afe-a746-4828-a199-1f081bdb3946	STATE	25561fe1-cc92-422a-af60-00ce518a62f0	Texas
+bbfbe64b-0da1-41a8-941b-1c81ab46a379	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lewismouth
+db3fbb3c-04cf-4168-9c24-c04d0a39fcbc	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP Finance
+7de52ff0-2889-4092-8f18-41808fd7d9bb	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Teresa Buck
+86ab7edf-ebe3-480a-a30e-4b461866c7f9	STATE	25561fe1-cc92-422a-af60-00ce518a62f0	Illinois
+cb10cb40-3b37-4824-80cd-b528b566e3ca	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Suttonside
+5adab1dd-02a6-432a-8a95-19d667da7c9e	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	HR Generalist
+d628c728-fcf7-4ba6-bcee-837fbcfcc4ce	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Caleb
+b19845ed-b582-4089-988f-36d41d645ad6	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Talent Acquisition Specialist
+5f3267d5-6a40-4507-9ef4-97082c23d9b8	STATE	25561fe1-cc92-422a-af60-00ce518a62f0	California
+9daeeae4-a29e-4499-8531-6dd5cfe93a99	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Tuckerberg
+ec6c5800-3ab8-4a9c-9137-4a3ce5a7b3ae	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	HR Business Partner
+fe054070-0c8f-4229-8783-c32a29f18989	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Tedd Morales
+f55144e1-5ca4-4707-8813-d2beeda7a9dd	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Swansonville
+5710920f-6b3d-4689-a320-2c8c8258eaac	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Financial Analyst
+cede26e5-261f-42d5-8092-b03d61cdbd2c	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Rhondachester
+a8767674-9fc4-4a92-952d-a69486362ae1	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Controller
+0f7ba348-e8f7-4274-b9d4-cf20eb8cd121	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lake Jamesborough
+f68bf9ae-f5e4-4d8d-b27c-dabefe48343d	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Brittanytown
+96736fac-08f3-4090-b184-8766d315fdcd	DEPARTMENT_HEAD	25561fe1-cc92-422a-af60-00ce518a62f0	Wendy Ross
+25c8fcb7-1921-4087-a5f6-ccef822daf24	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Alexmouth
+6ed24aae-8149-42a0-a586-c021a4fc7c39	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP Marketing
+b3db3bd0-ec52-490c-8d67-9ddbf358d071	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Wendy Ross
+c2fc0ed4-e4bb-456e-ae9f-c5e13f97346a	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Greerborough
+7a1bb3bb-b86e-4d2e-9852-c086467b04bb	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Demand Generation
+3c40eeb4-38b5-48c4-9742-3088be4b0969	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Sophiaport
+35c99d6e-f522-4231-a3b1-779e0dc92df4	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Content Marketing and Communications
+044e314a-0ed5-4840-a56b-9d2ccff309b1	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Oliviafurt
+0fb7b0f9-afc3-4e4d-9198-e641e97b1064	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Growth Marketing
+0fa1aaa9-8a3f-4453-9faa-4fe05aa69989	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Courtney Becker
+266f1923-1dd9-4485-a85f-1780fda6c144	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Katherinemouth
+b45da529-e09e-4e31-b72c-78f8445e5edb	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Growth Marketing Analyst
+98b2ae16-013e-4f2b-b43c-edf304279838	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Ronaldborough
+34cafde8-a5ae-4a34-84f5-0f10c1dc6535	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Marketing Automation Specialist
+7af73c10-9f8b-4158-99f6-d8d7b5444b20	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Davidtown
+d59fe686-589d-4e1b-b321-e9741ee63fd3	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Brandi Mason
+0c89ec6e-203c-432f-8139-b0c1e3d9ce67	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	South Michellemouth
+02f7273e-78a6-4e05-baf9-9d61af4bd0f9	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Communications Specialist
+aa7b5117-9ed7-4a94-aa35-ceb935b1c850	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Robertston
+5b467545-8320-4239-9fa2-d4b6edeee9e4	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Social Media Strategist
+63762c06-2fd0-44b8-9059-ab5faf8c14e4	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Michael Rivers
+816d632b-4cf9-4bfb-a408-2ce1a57ecd38	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Thomaschester
+03907719-c79c-4bf1-9579-470fdd5def62	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	SEO/SEM Specialist
+3f6f058d-ff4d-4ab4-a02d-55007e9ad5d3	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Markberg
+24f980c7-0145-4306-9ba0-87f0a983fbf4	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Stephaniefort
+0d3cbb6c-bc1a-4763-8243-33b9ac507119	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Performance Marketing Specialist 
+89ad67b6-3f47-4535-ae1d-7d5fceeff14e	DEPARTMENT_HEAD	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas Lucero
+4c323dee-116c-4713-b7c5-3a40163c6a55	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lake Caseyberg
+52503b1e-9d63-4c06-bcaf-42ce5384a69f	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP Product Management
+9e88d888-1ae2-4580-9d44-529b41d4e070	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas Lucero
+bc010abe-35ac-4792-a316-f5064fc7e2ec	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Davidberg
+6e494bb2-66aa-447c-a67a-95d8f00e319d	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Product Strategy
+ec1e1bdd-6598-4456-b7e0-2c3e80d8d3fc	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Donaldmouth
+5705c00f-752c-414e-9033-be132f834a19	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Product Development
+2a44ccdb-756d-47fd-8160-0a232c952d76	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Colinshire
+cff09877-7a4c-4cb1-9640-4a6dfd1fd4ae	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Product Operations
+0307f094-cfb6-40d0-bee3-d5bc734b6428	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Judy Calderon
+49a008a8-4e4b-4d2c-9365-0da8f8ab4073	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Terrimouth
+4a6a9284-d418-4bf0-ade1-6513015fe7b3	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Strategist
+fe3a4e83-9f18-450a-a720-8b1b69f1e08e	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Larryfurt
+e0c4118d-c298-4785-a147-2dbc50a03dd3	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Analyst
+0203afab-340a-4dd1-84ab-06a02affb72a	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Shawn
+ac59a138-84e3-4dbc-a9ad-43b206d69ec2	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Market Research Specialist
+b7c1b828-b155-4810-a588-7b596303ecb5	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Alexa Jones
+42b99236-7d97-4485-80e6-d31e1b69edc5	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Ambermouth
+bd18d779-776c-4224-9188-413596594529	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Designer
+71f2da11-0711-45e9-bcb0-c8c62eee43b1	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Morrisfort
+76b72e3d-2fa7-4e1a-a40d-4cdb5de84aed	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Development Engineer
+af1d02a0-4ded-4169-b8de-81d7abfdf32f	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Teresa
+66ba1200-be84-41d8-9e47-4060adcda34f	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Kim
+1d3f151c-df87-49a0-9bc7-84b56f9b48c8	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Owner
+40edd565-394e-43f6-a5c9-859079f34ed5	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Melaniebury
+6f2a3b39-089a-4a38-85aa-9caf9f564c67	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Brian Lambert
+9429c994-38de-4812-b8ae-358a210fb2ad	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Adamsstad
+d6950278-fbf3-4e18-8654-9052b183170f	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Operations Analyst
+b6d41d5f-b696-42e7-bc08-90c6c216f924	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Castrofurt
+6214f94b-f7be-4b40-882e-d50b2a956169	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Product Operations Specialist 
+87ef4854-95fc-4c3c-910f-67e386c4f4a4	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Austin
+2f8c9adb-33d8-48d9-95b1-24b73aba1fd5	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Melissa
+07c5dd7f-c261-4077-8d83-4daae04733a7	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP Sales
+54051e33-d8da-468b-8614-b7c95768b1bb	DEPARTMENT_HEAD	25561fe1-cc92-422a-af60-00ce518a62f0	James Diaz
+43740c65-22c4-412d-ba46-011a72d0cd0b	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	James Diaz
+e39a5108-ded0-404d-9cc2-f1de8ae6db0b	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Leahbury
+1b584937-0fc0-4381-ad73-4b00e69fbb3c	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director US Sales
+53aa9f10-4a2e-4f32-8c77-c53297b6dd04	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Catherinetown
+cc002b5a-567f-41e3-becf-c5afcb622d90	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director EMEA Sales
+53e8ffbf-65a3-4332-92e2-a0c4a9dbff89	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Michaelberg
+7baaad15-4f5f-49bf-b5da-ad34e666127b	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Sales Operations
+93fcfad9-df0d-4eef-af24-5d811b8d0eb7	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Connor
+7dd81392-ba4f-48f3-9250-dc750e5a60a1	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Business Development
+d44d8863-e4f1-4727-afbd-2b938065e2df	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Adam Sanchez
+b59d4156-b484-4758-874b-49d347f7bec3	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Josemouth
+2c4e289d-b4b6-4ae4-8261-51f094e32b52	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Regional Sales Representative
+5566a7f3-7952-4733-af0f-8675ad6247e1	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Andre
+69000add-7f56-458c-870d-7f49ecbfb908	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Andrewtown
+732e5b38-08c7-43f3-8641-261634f517e3	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lake Alan
+97d77292-62bb-4ab3-8f91-7962fc2e9393	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	South Brenda
+e276ab88-a4aa-436f-9b2a-efcd90e43104	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lake Davidside
+f07cb435-a834-49f4-8422-084eecd84ae0	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Client Success Specialist
+3c062d03-d636-437d-a8ee-c76217c79220	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Keithchester
+17379335-2068-4519-ae12-cbbc16d933ae	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Rebeccahaven
+28bad098-adb2-46e4-838a-79adbd89d55a	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Sales Development Representative
+f449ee00-5085-4d02-9b99-04e6d7818fed	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Thomas Hunter
+68c46e2d-331b-4044-a86a-a6697f891d52	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Kimberly
+5e27b10a-2154-4157-b90f-cededeac901f	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Catherineside
+ae56f865-19c2-468b-96a5-47000af0bded	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Natashamouth
+b71a282f-f3f3-4336-87be-7b2d1e868660	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Sean
+94f8d8c2-8901-4a5b-8ac6-f9cc7eab42d0	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Kristenside
+11515084-4831-487d-9214-58fc34764cd2	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Emilymouth
+34394134-b2e5-4ed9-bc90-bb085e1e8648	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Sara Gordon
+f53f7660-3ae1-4630-aa95-298a98c13659	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	South Matthew
+209594b0-3501-40e1-9f2e-ae6a549ea166	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	CRM Administrator
+80a2364c-c51a-47b3-a453-e84ea8ec9488	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Julie
+04f4e340-9af0-4a6a-a619-8991606982dc	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Sales Enablement Specialist
+24461008-767f-4de7-9a19-9ae13ec36a7e	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Michael
+ff2a60dc-5d27-480d-b879-4deabe2100b0	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Lisa
+5bb4661b-ecfb-44de-addf-80f995c5d0a0	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Sales Operations Analyst
+be9a20f8-2007-4347-bb63-33c0d07eae30	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Martinezmouth
+6b02c91f-1275-4101-9f9e-2efaffa19f8e	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Erin Brandt
+4784b610-155e-4377-b0ec-8bc184ca7858	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Vasquezshire
+67b60dc0-80ee-432a-8efc-d6046d746f32	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Business Development Representative
+3d3445a9-ed83-4a5e-8b31-905832a00e52	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Henryview
+bcba0f6e-a988-4b9c-bd92-0c734fc7edce	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Strategic Partnerships Associate
+69e8a871-cb33-4344-8e7e-88d7903e4752	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lloydstad
+19df19bc-5199-44fb-82ed-b600e39f1564	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	VP Engineering
+0b99c4e6-e474-4d0a-b55b-2c2b720a8a93	DEPARTMENT_HEAD	25561fe1-cc92-422a-af60-00ce518a62f0	Tiffany Rodriguez
+da224eb3-6db9-44bd-898a-c80c21d0559b	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Tiffany Rodriguez
+f0ac6178-dea5-4eca-a1fd-01eb8b9474e9	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Rachel
+c451154d-8c01-44f4-9073-971135801496	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director Software Engineering
+734071b0-2664-48a5-927a-d522b504e807	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Amyview
+c1593641-c44c-46a0-8882-9ba289b12791	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Director QA
+14275675-a406-4e08-8454-5da22790a4a1	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Jason Brady
+28574a37-1376-40b4-91bf-7cf7a24943f4	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Laurenberg
+84b078b5-dea1-4f93-91c3-0a321e34cde1	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Software Development Manager
+96a0be9a-f942-4075-9bb7-09ce21c4d1bc	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Crystal
+ca09b352-4ff8-4cdd-8dca-5ae447f0c618	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	DevOps Manager
+d69aa757-63a3-4400-9603-326194e75ab7	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Lynntown
+a0e3a99f-e33e-4304-86c5-a093209491d4	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Technical Architecture Manager
+7ea31b26-b6e9-4094-a7ed-de28f9d091be	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Tonya Buckley
+20790ab6-c538-496e-b01a-325d26f8ef34	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Christinaview
+9700cc1f-1856-4a20-89a8-7b51403cc91c	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	QA Automation Manager
+2b318bb5-32ae-4476-97a6-13384fe476c7	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Christopher
+c175cd4f-0768-4d9d-b2d4-13ad1e4a7d59	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Manual Testing Manager
+cdfcb548-7d8c-43eb-b33e-de01d9fa00d5	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Gregory Long
+7cd4c2f0-99b9-4c90-9fe2-9880926792f1	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Stephaniestad
+3d152ac7-c604-4c59-a094-1add235eeafa	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Full-Stack Developer
+8eeebc7f-41fa-4ce2-ba50-96c7f91748ee	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Davidstad
+6087bbda-22e2-4ee5-8418-3b57b537756e	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Patriciaview
+1f34794c-9edc-4e6f-8bab-9e33c3419c17	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Howardton
+68551122-3a7d-490e-b58c-db3218d2bf89	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Terrellview
+3412cceb-3ad7-421b-8bb6-b65376a0a905	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Nunezland
+ff943986-643f-4123-9464-ed19afd2260b	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Back-End Developer
+3381a917-992f-4e48-bbb9-d45f9ba59f98	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Richardburgh
+94b29d7a-2bcb-41d7-9a53-740946d0598c	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Barajasside
+e96bdaf9-4233-412e-8d51-1cff08b441e7	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Adamsmouth
+9e2eac4d-344a-44ba-ad10-58257aa9ffc1	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Lake Ronaldshire
+23884b24-a423-4e55-93f5-b641bfc9d0c2	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Front-End Developer
+1885fb48-9a68-4557-b09f-826bbe6f51da	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Nathanielview
+b772d552-dc48-4d30-86a5-d4419b797f75	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Mooreland
+10882b16-015a-47f4-8b91-12172c101dae	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Mobile Developer
+43820e34-6fce-4d06-89f9-1a1fa473120e	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Elizabethfort
+39201c07-ac96-471b-9c7f-2ecd0ac70cfc	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Christian Shaffer
+53543a85-018b-4930-9c31-67bb8197bc5d	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Joshua
+f59f8dcb-0c3f-4eb4-aa29-ef961f5fb5dd	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	DevOps Engineer
+97ab0dbd-8856-468f-bb5b-54ccd25ed79b	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Joshua
+6fbe3534-d27e-41e4-9b2b-5274c9116d76	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	North Stacey
+befacd30-3c92-468d-955d-37c0960b49b5	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Site Reliability Engineer
+ed6fcd04-8bea-4e4a-b622-560c61b754f6	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Richard Hubbard
+5e19bae6-333f-407c-92ee-306ba1d7f019	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Calhounfurt
+d6d14387-a51e-44f6-870f-eb9963525fc7	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Software Architect
+96b47a2d-ddce-4a3f-8d23-0103447e2837	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	New Jeffrey
+2a666567-3c9c-4787-827f-70201119bcb6	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Diana Osborne
+e9e40110-fac4-4acc-af1e-fd0d36c47be9	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	East Alejandraberg
+215b6303-0fe4-4afd-9628-51afc25cff58	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Test Automation Specialist
+49c74ebc-95ab-40c5-93e3-5eeb5c496656	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Mendozaville
+76aca7b7-1b78-47c1-ae62-da2691036a6d	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	QA Automation Engineer
+ced7bf84-8d9e-4649-ac8f-70c93ef1dcce	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Jessicashire
+881bee7f-e504-40b5-8fac-783546e5f03e	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Brownport
+abe3ca9e-0385-46be-80d1-a0b084758ccb	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Cookbury
+46f507e8-62c9-46ee-bbdd-adebface286f	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Automation Test Engineer 
+ca8b7597-600d-43af-b202-1ed639209449	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Lauriemouth
+f4ce0822-178e-49c5-b8b9-6e5505f0066c	MANAGER	25561fe1-cc92-422a-af60-00ce518a62f0	Ashley Walton
+dd3c8bd7-363b-4f27-a1af-c74758cce8f5	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Adrian
+f4a30baa-a54f-422b-8d9b-e9f5a0857a22	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	QA Tester
+fd25d92e-f3d4-4efe-942e-0410e7c5764b	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	West Pamela
+37c65114-7d13-4e2b-9da0-e097f7e7623d	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Rogersport
+feb5bdb2-7cc9-4663-9d3a-12a5d1e660f9	TITLE	25561fe1-cc92-422a-af60-00ce518a62f0	Manual Test Engineer 
+1c3c40c4-e804-48a0-94f6-049b39f825cf	CITY	25561fe1-cc92-422a-af60-00ce518a62f0	Port Stephenburgh
+bd2795c5-4e43-43d2-9c5a-f62b8ad6faae	DEPARTMENT_HEAD	441d6f69-d278-4450-97ea-de9737ce0f60	Amanda Thompson
+20892aeb-4c2d-4002-bd82-086dd3a88b9a	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	-
+135c4857-0db6-40a8-a0c4-38d6ab0e7ab2	COUNTRY	441d6f69-d278-4450-97ea-de9737ce0f60	USA
+6aa881eb-9280-49b2-a1b1-727ef043bc13	STATE	441d6f69-d278-4450-97ea-de9737ce0f60	Florida
+0fe8a857-a26c-4271-91ee-54954ceebf99	CURRENCY	441d6f69-d278-4450-97ea-de9737ce0f60	USD
+b791e06e-a5d0-4a2a-8592-d4f1b5ade066	COMPENSATION_REGION	441d6f69-d278-4450-97ea-de9737ce0f60	USA
+abae38b7-3c13-4096-898d-d2d243f07f8f	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Perezmouth
+8f18a55f-ffec-4af2-b979-a88110097018	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	CEO
+b0a59dad-81eb-4004-94ea-aec123b8271e	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Amanda Thompson
+3899e75b-64f6-45d7-b811-15d8f8b4e049	STATE	441d6f69-d278-4450-97ea-de9737ce0f60	New York
+bb924467-3835-4543-a019-6514f752f1a2	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Ashleystad
+09df6ea3-73e8-4750-947f-78c185071c0b	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP HR
+c503cab2-700c-4b6a-809f-1243479479dd	STATE	441d6f69-d278-4450-97ea-de9737ce0f60	Texas
+2e4a6f55-0ddf-4554-973c-4c16a3702fb8	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lewismouth
+fa24c454-808a-47a2-a3ca-a246582c4f1a	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP Finance
+7ff3158a-a2ff-4034-824b-22bf7f9f251d	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Teresa Buck
+d8f18148-ffdb-404e-bd93-33d43934fdb2	STATE	441d6f69-d278-4450-97ea-de9737ce0f60	Illinois
+ff482e56-8639-4df8-b540-c9c6dd71c345	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Suttonside
+fc8def61-53fc-4188-9aa6-b8276f695138	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	HR Generalist
+16b677ae-6dbf-40af-a35b-b79fd319847b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Caleb
+fcf67671-a88d-4910-b890-f5d547f5f171	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Talent Acquisition Specialist
+57dd487c-2052-4b3c-9527-6a0a8f3c92a0	STATE	441d6f69-d278-4450-97ea-de9737ce0f60	California
+0babbc5e-15e8-4d73-9e7f-101744e38753	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Tuckerberg
+60007029-ad4a-44e1-bf82-998a94bffff5	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	HR Business Partner
+97a4d715-0801-4f86-89b9-d7dcef08f335	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Tedd Morales
+a949a3af-79b6-47fb-84f7-21c576cd4338	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Swansonville
+edf416b0-733a-49ea-9abf-ed8e1adfd612	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Financial Analyst
+d844673f-a890-4b0f-be27-c1df8280362f	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Rhondachester
+d3554f3a-784d-4db7-ae1f-4ab413da496d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Controller
+3d822b1d-e437-4866-a41c-c7d94042b0d0	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lake Jamesborough
+5618f3d0-6d91-4106-a59d-3f4af7ad74bf	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Brittanytown
+ec2a36af-7865-404b-976e-c7276312a92d	DEPARTMENT_HEAD	441d6f69-d278-4450-97ea-de9737ce0f60	Wendy Ross
+ada95c47-8a22-40f8-99f0-b8593df31977	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Alexmouth
+f275cc56-0a53-4761-a6a7-8b476831936f	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP Marketing
+34966630-0959-4303-a0d2-1bbb4a384802	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Wendy Ross
+403e13f7-3144-439e-90a3-a9f7365a484a	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Greerborough
+de562f4f-b942-4967-bed3-0bdd6fa93a1e	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Demand Generation
+c8ebe62f-3ad9-45c6-bec2-4e9e91c956b3	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Sophiaport
+86890dca-595d-42a9-8cfd-a2bade445c9f	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Content Marketing and Communications
+087fbcfb-8568-4fe3-a61e-c0cf7786f83c	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Oliviafurt
+573145db-7e91-495a-9db5-7f114e74a935	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Growth Marketing
+e15a6109-6d8d-48c4-95d9-c3f7325b5611	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Courtney Becker
+b6d1831f-0bfd-4b38-8f19-b49619e01429	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Katherinemouth
+c20a3f5a-e1f4-4476-971d-8ef8530884bb	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Growth Marketing Analyst
+a4ab8775-aaaa-4546-9987-3cbcf41b1d28	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Ronaldborough
+ac97cad3-8b69-40f3-affb-650a7b925eae	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Marketing Automation Specialist
+d1a2f39f-4028-4927-8530-dc2e0895d8ad	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Davidtown
+c397aef2-f65e-4f1d-9261-259d6f28ab46	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Brandi Mason
+94533a05-f3b9-4a37-a929-01281d85ce79	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	South Michellemouth
+c4a0b1cb-098f-423e-9c70-90a9dfa92b53	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Communications Specialist
+889c4d02-856d-44d5-8a09-de2f8c39f7ff	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Robertston
+f61c8a72-8554-439b-afdc-c00b6edc2f30	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Social Media Strategist
+eb3416cc-bce9-4f14-b173-56b789fc6d71	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Michael Rivers
+000f7276-6bf0-4977-8e23-5401a362130b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Thomaschester
+63223366-b08d-48fb-b2a3-86dd49354b9d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	SEO/SEM Specialist
+a6d249b4-9425-490a-81f9-2272dc228829	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Markberg
+cc3de0d2-55f2-402e-a891-179c70db1a25	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Stephaniefort
+b3e66106-8e1a-4514-94ee-19b9c135ea38	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Performance Marketing Specialist 
+07f9b77a-6711-4872-85ae-d916099e48bd	DEPARTMENT_HEAD	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas Lucero
+46952d73-a462-46e3-bdc5-edb1200dc351	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lake Caseyberg
+55861492-3229-4850-902e-a3bf9a699ef3	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP Product Management
+f5a63a6f-a98a-4cd8-87b6-172bb9310c32	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas Lucero
+c0c91123-1a66-47d0-a3a1-c70f622cc7b6	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Davidberg
+8a29be30-ef5a-45f0-9e63-a3a8bb13bd4a	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Product Strategy
+d86db362-b9e7-4a65-835a-62c5d9d1f62c	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Donaldmouth
+7eb98925-0d5b-4472-89c1-c95c67648357	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Product Development
+2d7109e7-1445-4754-b118-d1f5a5fdef15	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Colinshire
+b29898a9-674d-441b-a0b1-551cfa891e57	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Product Operations
+f8160521-0ae5-454d-9785-9bc12198cffa	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Judy Calderon
+1c9a54d5-356c-4047-a5f8-dd0948948934	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Terrimouth
+3e2c67b4-d92c-4829-93c7-578d9ce83c44	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Strategist
+382bfa58-8baf-444a-917e-806a0c391237	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Larryfurt
+26129968-5438-4ea9-ae3b-cd08774ee9e7	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Analyst
+4a394b4c-f923-4aca-942c-0336a0466494	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Shawn
+2c7fddb2-3f82-4881-a22d-0f8681170c15	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Market Research Specialist
+f7d1fc51-258f-4654-b84d-9ea52f0b5999	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Alexa Jones
+098bf0af-d467-469b-8c04-10a25fcc321e	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Ambermouth
+57696a9f-5577-4194-9dec-9827fd048a6b	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Designer
+93669f2e-9dd5-40c2-8239-7b51c181027b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Morrisfort
+753e1b76-b77d-4710-82ca-d6a243202242	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Development Engineer
+0717b6da-fe28-43b8-a1da-8c6a7c9a34b7	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Teresa
+2a85cce8-72fe-4047-a2c0-441af88371da	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Kim
+f8bc9aff-d68e-4a0c-8c62-15572cc83952	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Owner
+6e0a1554-d783-465e-a933-8c57972142a2	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Melaniebury
+81199bde-c0f4-4be0-a73c-5bf2167fa8a7	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Brian Lambert
+721ad4e0-915f-4bd4-ad57-7a53fc58df55	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Adamsstad
+77cd9d2a-9eec-46d4-9874-f6e9b4102e75	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Operations Analyst
+82fcd588-72a7-41d6-83ec-9cfbb8152aac	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Castrofurt
+8c26800b-69a1-425e-8d5e-e66df72f7f93	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Product Operations Specialist 
+ad54d86b-acb3-4b36-b3c2-901f27c85d8b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Austin
+20d19a39-4dce-4db3-8981-43c8505a03e6	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Melissa
+c6920bc8-68af-47f0-aed6-962512e15909	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP Sales
+cc4a0e27-6f67-42f9-a54a-0531d89abda6	DEPARTMENT_HEAD	441d6f69-d278-4450-97ea-de9737ce0f60	James Diaz
+6369dd49-1434-438a-b0b7-cb6aa70419dc	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	James Diaz
+aaf24b02-9b98-4a70-a1a7-4661f98f8a93	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Leahbury
+a0eb471d-95d2-4830-9c7b-428bb9930b7a	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director US Sales
+dde47280-3c28-495e-ae61-9c2b200d40f3	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Catherinetown
+8698098a-e9e8-4049-88b4-04420ece0667	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director EMEA Sales
+d061dce0-18ed-4960-97df-f609d59ae828	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Michaelberg
+ba1a6114-bc5e-43af-ae46-fbbebc4ea4fa	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Sales Operations
+3f999bd7-fdb5-4c7c-bed0-be7cb40854fe	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Connor
+e2d44a86-6e40-4000-b8e4-ab877ceb44fe	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Business Development
+1a7fcc74-19a8-4efd-8bdd-efeadd27cfa2	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Adam Sanchez
+a787ed56-6431-4b00-bc80-1af0e16935f9	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Josemouth
+af3e9ea3-e0a2-4b45-87ca-323251ea8486	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Regional Sales Representative
+f16c5d69-fddb-47aa-80df-64355156c68c	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Andre
+0717ce97-89c2-48c3-9aa2-37171d196d30	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Andrewtown
+d5b846a0-189c-4485-8f6c-98ff40b81736	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lake Alan
+f4187907-f2da-4ea4-acf7-37b072c46594	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	South Brenda
+ed8bca14-d1eb-4147-babb-73126d8b5b47	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lake Davidside
+b015393c-708c-4210-80bc-0db668164944	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Client Success Specialist
+d4228008-f193-4b65-9b24-5f1ebc5d1744	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Keithchester
+8bb65954-953c-4365-bcdc-241b1d1f7cb5	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Rebeccahaven
+111c1010-b320-4769-89a6-ab3e79b6e090	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Sales Development Representative
+8b1bb1cd-1e51-4212-8895-fc221d2226d3	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Thomas Hunter
+cf257688-4e53-4432-835f-432b183355de	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Kimberly
+98600bc5-9f09-4dbe-948c-19c841f25a28	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Catherineside
+dbc6a205-ef36-44e0-be23-1131ad141d0d	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Natashamouth
+2381edf9-de8f-4ec7-bb25-0ff7ea40d4d0	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Sean
+ebb51fa1-8bd3-47e3-bc21-675994ad3e0d	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Kristenside
+d1d02e78-9128-4f51-93d4-81d0ba580e7b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Emilymouth
+f3743d5f-a90f-4804-836c-d7d0474b4d5c	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Sara Gordon
+e7ae3cfd-0820-40cd-ad36-926b4fca35ff	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	South Matthew
+c90b08d4-6fcc-4adb-b6fe-67b04e00c0e1	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	CRM Administrator
+803bb08c-e314-43fd-be32-fe2222792b84	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Julie
+66670743-17ae-4353-946e-2ada89b6737b	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Sales Enablement Specialist
+35635afb-9069-4a91-af73-c3c6b2f5774b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Michael
+882e08db-97c1-4d24-929d-4d7a6026e007	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Lisa
+7f44fd6c-f50d-4175-afcf-39de58227d49	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Sales Operations Analyst
+e7e9b517-8b04-479d-beb8-a2af042af48e	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Martinezmouth
+928a78e4-d0af-4a7e-a311-2e075d839b10	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Erin Brandt
+50551786-7b1b-443a-8a17-021004d3f763	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Vasquezshire
+984e16dd-5cce-4e7c-bb7c-f67769f87f5f	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Business Development Representative
+52410a67-131d-4f50-9b9f-f4a48c58cd5a	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Henryview
+998552b4-d385-4d44-a4d3-1cb52804dd03	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Strategic Partnerships Associate
+6628a005-8243-4cf3-928a-fd12d596449b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lloydstad
+423b3bdb-6736-4a01-9a58-e4434e55bcbc	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	VP Engineering
+917359b0-21e7-4f93-8566-2ee550cd875e	DEPARTMENT_HEAD	441d6f69-d278-4450-97ea-de9737ce0f60	Tiffany Rodriguez
+640d9b54-5c07-445e-8725-323b6de975de	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Tiffany Rodriguez
+1b6d7459-d9ca-415b-98dd-80feae765e87	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Rachel
+0d0281df-50c9-4cc1-a2ed-9fedc440c696	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director Software Engineering
+1bbeec26-35d0-4f99-be39-aaebf55dc0b9	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Amyview
+92894ad2-1ef4-4d1a-afc2-35f66af72010	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Director QA
+4372333e-1fbd-476d-9fe3-601b1fd516bb	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Jason Brady
+af1246e7-9b56-49e3-83c4-c77cbf36bd98	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Laurenberg
+ce74b898-3a28-43f6-9351-7bea3908f351	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Software Development Manager
+312c7cda-b112-4888-a7d8-319ba150bc71	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Crystal
+40991931-5bb6-4817-93ef-115d0fe8c361	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	DevOps Manager
+6c299d00-5e30-49d5-8ce7-005c5244a306	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Lynntown
+fb65f86e-85de-4ebd-a4a6-a3b2e7f2dc1b	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Technical Architecture Manager
+0c394fa8-5500-4681-9ecc-80e2566eb90d	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Tonya Buckley
+fcc6916a-57e4-4aa0-adc4-602aea9ff54a	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Christinaview
+537db427-3550-4aaf-aae9-d9c2b47b07da	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	QA Automation Manager
+e363e29b-4a9f-47e7-97e8-92e241cca4bb	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Christopher
+06d54fe0-9801-4ff9-9c07-3a3e6e31d58d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Manual Testing Manager
+bf01fbbc-382f-4f48-8343-95e2e299713a	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Gregory Long
+706acacf-4243-41a2-a2d5-26831e67802b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Stephaniestad
+9400fdf4-948e-4a40-ab43-66123e43b9e2	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Full-Stack Developer
+614e0f4a-ee9d-4b8b-b9dd-368af9523aff	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Davidstad
+1ee7178f-368c-4cb8-9cc6-66f1ceb041d9	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Patriciaview
+936d5e83-b685-4f11-90a0-e062cc2121aa	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Howardton
+d947b0fd-416e-438c-b7c3-b8f0a73e68dd	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Terrellview
+25e82f9c-0091-43da-89e9-7f953883134b	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Nunezland
+d559c145-9085-4a4d-91ed-7f6120f95ee8	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Back-End Developer
+85ece38c-ee69-4a9f-98d0-a27216abcc21	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Richardburgh
+c3838b33-5a87-4714-8774-06b68c912547	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Barajasside
+9ddbcec5-68df-4f64-b181-a6979f7cfe62	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Adamsmouth
+d442a6d3-ba0d-4e47-a131-c6a23d5f1c89	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Lake Ronaldshire
+cfc8d120-d4bb-4bfb-975a-1534599490b9	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Front-End Developer
+d965be25-4abb-4893-8208-d764873e2703	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Nathanielview
+f1588472-6e1d-4822-b24f-ecbc5f3d6214	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Mooreland
+d3abbf0a-94e6-4f9f-93b8-54268b212329	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Mobile Developer
+464b1dd6-eadf-4eb6-9bf4-f5b1f117ec04	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Elizabethfort
+7efa06f2-92cc-4e55-877e-9970807ee1ca	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Christian Shaffer
+6077d2c3-c35f-4240-9d03-d28b61c79cad	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Joshua
+39a53c2c-5ef2-46b3-a7cb-8f2a57627f77	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	DevOps Engineer
+0972719e-cf3f-4e50-a7e2-2a45799f70e1	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Joshua
+cec54719-ebc8-4288-911c-0f04b83b40ab	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	North Stacey
+26b4cc74-0c62-4665-9e24-6eefef02df4d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Site Reliability Engineer
+1da7c475-06ad-4bac-bf10-83164153ea2c	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Richard Hubbard
+943de6cc-1c3d-4551-83af-0a382f540104	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Calhounfurt
+649e236a-ae57-492d-9ded-4e068e3d8e00	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Software Architect
+bca35a69-daf3-414c-87f7-3377319ea32d	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	New Jeffrey
+f90e38d8-13c5-46a8-8b71-a6d9a942a385	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Diana Osborne
+1657b9e1-2222-493b-b034-e6aea7bc9738	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	East Alejandraberg
+535998b6-86f5-420b-a133-2db342f7468d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Test Automation Specialist
+68be3013-3f24-47a1-9c4a-6f3d3e728ed3	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Mendozaville
+1fa41881-a553-4a36-8e82-9e042bf7697a	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	QA Automation Engineer
+ee7c9c64-fe58-4058-a16a-39c7a832c83a	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Jessicashire
+e779d454-efc2-421c-8f18-a6446c7f4dc8	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Brownport
+7bb61753-7b45-4f20-87f9-3ff037cfe79e	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Cookbury
+316b9905-a364-4d3b-8a82-f36cf0c18a81	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Automation Test Engineer 
+5a336552-3ff4-4277-be7b-c0d436985cb7	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Lauriemouth
+f5e4b5fa-8abd-4f2b-9f3c-6543b974cc3b	MANAGER	441d6f69-d278-4450-97ea-de9737ce0f60	Ashley Walton
+8941b2b4-fcab-45a0-aaea-6c76af354e67	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Adrian
+81b8727b-5865-4c53-b38c-f405410a289d	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	QA Tester
+04f36f42-e99a-46a6-a719-8962b026ccbd	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	West Pamela
+31520e45-c857-4dd4-a8ea-8fb330b9b8d4	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Rogersport
+6aa6ecd2-1a46-4a4a-a71f-d307fd9b6821	TITLE	441d6f69-d278-4450-97ea-de9737ce0f60	Manual Test Engineer 
+2e9a2362-e43a-4dac-be55-ace445158031	CITY	441d6f69-d278-4450-97ea-de9737ce0f60	Port Stephenburgh
+\.
+
+
+--
+-- Data for Name: migrations; Type: TABLE DATA; Schema: public; Owner: hr-ms
+--
+
+COPY public.migrations (id, "timestamp", name) FROM stdin;
+1	1734963156092	Migrations1734963156092
+\.
+
+
+--
+-- Data for Name: plan_data; Type: TABLE DATA; Schema: public; Owner: hr-ms
+--
+
+COPY public.plan_data (id, plan_id, business_id, value, date, plan_change_type, hr_id) FROM stdin;
+8cca56d8-1f2a-4528-b9e9-180bab6def99	1a091c1a-001b-439e-9ce1-b1623d835fa9	25561fe1-cc92-422a-af60-00ce518a62f0	150000  2025-04-24  Base Salary	ae96afd6-4d39-4a3d-98eb-16565d2b8130
+\.
+
+
+--
+-- Name: migrations_id_seq; Type: SEQUENCE SET; Schema: public; Owner: hr-ms
+--
+
+SELECT pg_catalog.setval('public.migrations_id_seq', 1, true);
+
+
+--
+-- Name: hr_collections pk_hr_collections_id; Type: CONSTRAINT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.hr_collections
+    ADD CONSTRAINT pk_hr_collections_id PRIMARY KEY (id);
+
+
+--
+-- Name: hr pk_hr_id; Type: CONSTRAINT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.hr
+    ADD CONSTRAINT pk_hr_id PRIMARY KEY (id);
+
+
+--
+-- Name: migrations pk_migrations_id; Type: CONSTRAINT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.migrations
+    ADD CONSTRAINT pk_migrations_id PRIMARY KEY (id);
+
+
+--
+-- Name: plan_data pk_plan_data_id; Type: CONSTRAINT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.plan_data
+    ADD CONSTRAINT pk_plan_data_id PRIMARY KEY (id);
+
+
+--
+-- Name: idx_hr_collections_type_business_id_value; Type: INDEX; Schema: public; Owner: hr-ms
+--
+
+CREATE UNIQUE INDEX idx_hr_collections_type_business_id_value ON public.hr_collections USING btree (type, business_id, value);
+
+
+--
+-- Name: idx_hr_requisition_business_id; Type: INDEX; Schema: public; Owner: hr-ms
+--
+
+CREATE UNIQUE INDEX idx_hr_requisition_business_id ON public.hr USING btree (requisition, business_id);
+
+
+--
+-- Name: idx_plan_data_plan_id; Type: INDEX; Schema: public; Owner: hr-ms
+--
+
+CREATE INDEX idx_plan_data_plan_id ON public.plan_data USING btree (plan_id);
+
+
+--
+-- Name: idx_plan_data_plan_id_business_id_hr_id; Type: INDEX; Schema: public; Owner: hr-ms
+--
+
+CREATE UNIQUE INDEX idx_plan_data_plan_id_business_id_hr_id ON public.plan_data USING btree (plan_id, business_id, hr_id);
+
+
+--
+-- Name: plan_data fk_plan_data_hr_id_hr_id; Type: FK CONSTRAINT; Schema: public; Owner: hr-ms
+--
+
+ALTER TABLE ONLY public.plan_data
+    ADD CONSTRAINT fk_plan_data_hr_id_hr_id FOREIGN KEY (hr_id) REFERENCES public.hr(id);
+
+
+--
+-- PostgreSQL database dump complete
+--
+

@@ -1,0 +1,1 @@
+# psql -U <username> -d <db_name> -f <path_to_dump>
